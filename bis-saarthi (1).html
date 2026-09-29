@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIS Saarthi — AI Standards Assistant</title>
+<meta name="description" content="Find Indian Standards, ISI/CRS certification routes, testing labs and hallmarking guidance — for small manufacturers and consumers.">
+<style>
+  :root{
+    --sidebar:#173226;
+    --sidebar-active:#2F5940;
+    --sidebar-text:#CFE0D5;
+    --lime:#A9D14D;
+    --cream:#F5F3EA;
+    --card:#FFFFFF;
+    --line:#E4E0D2;
+    --ink:#1B1B18;
+    --ink-soft:#6B6B62;
+    --green:#2F6F4E;
+    --green-dark:#20503A;
+    --mint:#E4F0DF;
+    --mint-text:#2F6F4E;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    font-size:14.5px;
+  }
+  .shell{display:flex;min-height:600px;}
+
+  /* ---------- sidebar ---------- */
+  .sidebar{
+    width:220px;
+    flex-shrink:0;
+    background:var(--sidebar);
+    color:var(--sidebar-text);
+    display:flex;
+    flex-direction:column;
+    padding:20px 0;
+  }
+  .sidebar .brand{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08);margin-bottom:12px;}
+  .sidebar .brand .name{font-size:18px;font-weight:700;color:#fff;}
+  .sidebar .brand .name span{color:var(--lime);}
+  .sidebar .brand .tag{font-size:11px;color:#9FB3A5;margin-top:2px;}
+  .sidebar nav{flex:1;}
+  .sidebar nav button{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    color:var(--sidebar-text);
+    font-family:inherit;
+    font-size:13.5px;
+    padding:11px 20px;
+    cursor:pointer;
+    border-left:3px solid transparent;
+  }
+  .sidebar nav button:hover{background:rgba(255,255,255,0.05);}
+  .sidebar nav button.active{
+    background:var(--sidebar-active);
+    color:#fff;
+    font-weight:600;
+    border-left-color:var(--lime);
+  }
+  .sidebar .footnote{padding:12px 20px 0;font-size:10.5px;color:#7C9186;}
+
+  /* ---------- main ---------- */
+  .main{flex:1;padding:24px 28px 40px;min-width:0;}
+  .page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:18px;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .page-header h1{font-size:22px;margin:0 0 4px;font-weight:700;}
+  .page-header p{margin:0;font-size:13px;color:var(--ink-soft);max-width:480px;}
+  .lang-switch{
+    display:flex;
+    gap:2px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:3px;
+    flex-shrink:0;
+  }
+  .lang-switch button{
+    font-family:inherit;
+    font-size:12px;
+    border:none;
+    background:none;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    color:var(--ink-soft);
+  }
+  .lang-switch button.active{background:var(--green-dark);color:#fff;}
+
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:14px;
+  }
+  .card h3{margin:0 0 4px;font-size:15px;}
+  .card .muted{font-size:12.5px;color:var(--ink-soft);}
+
+  input[type=text], select{
+    font-family:inherit;
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input[type=text]:focus, select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px var(--mint);}
+  button.primary{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    background:var(--green-dark);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:10px 18px;
+    cursor:pointer;
+  }
+  button.primary:hover{background:var(--green);}
+  button.chip{
+    font-family:inherit;
+    font-size:12px;
+    background:var(--mint);
+    color:var(--mint-text);
+    border:1px solid var(--mint);
+    border-radius:20px;
+    padding:6px 12px;
+    cursor:pointer;
+  }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+
+  /* --- Home --- */
+  .quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
+  .quick-card{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;cursor:pointer;
+  }
+  .quick-card:hover{border-color:var(--green);}
+  .quick-card .icon{
+    width:34px;height:34px;border-radius:8px;background:var(--mint);color:var(--mint-text);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;margin-bottom:10px;
+  }
+  .quick-card b{font-size:13.5px;display:block;margin-bottom:3px;}
+  .quick-card span{font-size:12px;color:var(--ink-soft);display:block;}
+  .quick-card .open-link{font-size:12px;color:var(--mint-text);font-weight:600;margin-top:10px;}
+
+  /* --- result badges --- */
+  .badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:0.02em;padding:3px 9px;border-radius:4px;margin-bottom:8px;}
+  .badge.ok{background:var(--mint);color:var(--mint-text);}
+  .badge.warn{background:#FBF0DE;color:#8A5A1C;}
+  .badge.bad{background:#FAE6E4;color:#B23A32;}
+  .citation{margin-top:8px;font-size:12px;color:var(--ink-soft);background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:8px 10px;}
+
+  /* --- lab list --- */
+  .lab-item{
+    background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;
+  }
+  .lab-item b{font-size:13.5px;}
+  .lab-item .loc{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .lab-item .cat{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .lab-item a.view{font-size:12.5px;color:var(--mint-text);font-weight:600;text-decoration:none;}
+
+  /* --- steps --- */
+  .steps{list-style:none;margin:0;padding:0;}
+  .steps li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .steps li:last-child{border-bottom:none;}
+  .step-num{
+    flex-shrink:0;width:26px;height:26px;border-radius:50%;background:var(--green-dark);color:#fff;
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;
+  }
+  .step-body b{font-size:13.5px;}
+  .step-body p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);}
+
+  /* --- hallmark know-cards --- */
+  .know-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px;}
+  .know-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .know-num{width:26px;height:26px;border-radius:7px;background:var(--mint);color:var(--mint-text);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
+  .know-card b{font-size:13px;display:block;}
+  .know-card span{font-size:12px;color:var(--ink-soft);}
+
+  /* --- assistant --- */
+  .chat-layout{display:flex;gap:16px;flex-wrap:wrap;}
+  .chat-main{flex:2;min-width:280px;}
+  .chat-side{flex:1;min-width:200px;}
+  .bubble-user{background:var(--mint);border-radius:10px;padding:10px 14px;font-size:13.5px;margin-bottom:10px;max-width:90%;}
+  .bubble-answer{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;}
+  .bubble-answer .who{font-size:12px;font-weight:700;color:var(--mint-text);margin-bottom:6px;}
+  .context-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .context-card b{font-size:13.5px;display:block;margin-bottom:8px;}
+  .context-card li{font-size:12.5px;color:var(--ink-soft);margin-bottom:6px;list-style:none;padding-left:18px;position:relative;}
+  .context-card li:before{content:"✓";position:absolute;left:0;color:var(--green);}
+
+  /* --- top bar / live clock --- */
+  .topbar{
+    width:100%;
+    background:var(--cream);
+    border-bottom:1px solid var(--line);
+    padding:6px 20px;
+    display:flex;
+    justify-content:flex-end;
+  }
+  .live-clock{
+    background:#fff;
+    border:1px solid var(--line);
+    color:var(--green-dark);
+    font-size:12px;
+    font-weight:600;
+    padding:4px 12px;
+    border-radius:20px;
+    font-variant-numeric:tabular-nums;
+  }
+
+  /* --- manufacturing guide: connected journey timeline --- */
+  .journey{position:relative;}
+  .journey::before{
+    content:"";
+    position:absolute;
+    left:15px;
+    top:15px;
+    bottom:15px;
+    width:2px;
+    background:var(--line);
+    z-index:0;
+  }
+  .journey-item{display:flex;gap:14px;position:relative;z-index:1;margin-bottom:14px;}
+  .journey-item:last-child{margin-bottom:0;}
+  .journey-num{
+    flex-shrink:0;width:30px;height:30px;border-radius:50%;
+    background:var(--green-dark);color:#fff;font-size:12.5px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .journey-card{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0;}
+  .journey-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+  .journey-card h4{margin:0;font-size:14px;}
+  .journey-card .short{font-size:12.5px;color:var(--ink-soft);margin:6px 0 10px;}
+  .journey-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .journey-actions button{
+    font-family:inherit;font-size:11.5px;font-weight:600;background:none;
+    border:1px solid var(--line);border-radius:20px;padding:5px 12px;cursor:pointer;color:var(--mint-text);
+  }
+  .journey-actions button:hover{border-color:var(--green);}
+  .journey-detail{display:none;margin-top:10px;font-size:12.5px;color:var(--ink-soft);background:var(--cream);border:1px solid var(--line);border-radius:6px;padding:10px 12px;}
+  .journey-detail.show{display:block;}
+  .journey-detail ul{margin:0;padding-left:18px;}
+  .journey-detail li{margin-bottom:4px;}
+  .journey-source{display:none;margin-top:8px;font-size:11px;color:#8A5A1C;background:#FBF0DE;border:1px solid #F0DDB8;border-radius:6px;padding:6px 10px;}
+  .journey-source.show{display:block;}
+
+  /* --- Apple-style inline autofill ghost text --- */
+  .autofill-wrap{position:relative;}
+  .autofill-wrap input{position:relative;z-index:2;background:transparent;width:100%;}
+  .autofill-ghost{
+    position:absolute;inset:0;z-index:1;
+    display:flex;align-items:center;
+    padding:9px 12px;font-size:14px;font-family:inherit;
+    white-space:pre;overflow:hidden;pointer-events:none;border-radius:5px;
+  }
+  .autofill-ghost .gh-typed{color:transparent;}
+  .autofill-ghost .gh-suggest{color:var(--ink-soft);}
+
+  /* --- interactive polish: motion, depth, icons, toasts --- */
+  @keyframes fadeSlideIn{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:translateY(0); } }
+  .panel.active{ animation:fadeSlideIn .32s ease; }
+
+  .sidebar nav button{ transition:background .15s ease, border-color .15s ease, padding-left .15s ease; }
+  .sidebar nav button:hover{ padding-left:24px; }
+  .sidebar nav button .nav-ic{ display:inline-block; width:18px; margin-right:8px; opacity:0.85; }
+
+  button.primary{ transition:transform .12s ease, box-shadow .12s ease, background .15s ease; }
+  button.primary:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(32,80,58,0.28); }
+  button.primary:active{ transform:translateY(0); box-shadow:none; }
+
+  button.chip{ transition:transform .12s ease, background .12s ease, border-color .12s ease; }
+  button.chip:hover{ transform:translateY(-1px); background:var(--green-dark); color:#fff; border-color:var(--green-dark); }
+
+  .card, .quick-card, .journey-card, .lab-item, .know-card{ transition:box-shadow .18s ease, transform .18s ease; }
+  .card:hover, .quick-card:hover, .journey-card:hover, .lab-item:hover, .know-card:hover{
+    box-shadow:0 8px 22px rgba(20,40,30,0.08); transform:translateY(-2px);
+  }
+  .quick-card{ cursor:pointer; }
+
+  .badge.ok{ position:relative; }
+
+  /* toast notifications */
+  #toastStack{
+    position:fixed; top:52px; right:20px; z-index:2000;
+    display:flex; flex-direction:column; gap:8px; align-items:flex-end;
+  }
+  .toast{
+    background:var(--green-dark); color:#fff; font-size:13px; font-weight:600;
+    padding:10px 16px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,0.18);
+    animation:toastIn .25s ease, toastOut .3s ease 2.7s forwards;
+    max-width:280px;
+  }
+  @keyframes toastIn{ from{ opacity:0; transform:translateX(20px); } to{ opacity:1; transform:translateX(0); } }
+  @keyframes toastOut{ to{ opacity:0; transform:translateX(20px); } }
+
+/* ===== v2 additions ===== */
+:focus-visible{outline:3px solid var(--lime);outline-offset:2px;}
+.skip{position:absolute;left:-999px;top:8px;background:var(--green-dark);color:#fff;padding:8px 14px;border-radius:6px;z-index:3000}
+.skip:focus{left:8px}
+.theme-toggle{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:4px 12px;font-size:12.5px;cursor:pointer;color:var(--ink);font-family:inherit}
+.topbar{gap:8px;align-items:center}
+.role-box{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.role-btn{flex:1;min-width:200px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:12px 14px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.role-btn b{display:block;font-size:14px}.role-btn span{font-size:12px;color:var(--ink-soft)}
+.role-btn.active{border-color:var(--green);background:var(--mint)}
+#roleHint{font-size:13px;margin:0 0 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.quick-card.dim{opacity:.5}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(27,27,24,.5);z-index:2500;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--card);color:var(--ink);border-radius:12px;max-width:400px;width:100%;padding:20px 22px;max-height:80vh;overflow-y:auto}
+.modal-box .close-x{float:right;background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink-soft)}
+.care-region{background:var(--mint);color:var(--mint-text);border-radius:8px;padding:10px 12px;font-size:13px}
+.suggested-tag{display:inline-block;font-size:10.5px;font-weight:700;background:var(--green-dark);color:#fff;border-radius:4px;padding:2px 7px;margin-bottom:6px}
+.call-btn{display:inline-block;font-size:12.5px;font-weight:600;background:var(--green-dark);color:#fff;border-radius:20px;padding:7px 14px;text-decoration:none;margin:4px 6px 0 0}
+.care-list{list-style:none;margin:0;padding:0}
+body.dark{--cream:#12201A;--card:#1B2E24;--line:#2C4436;--ink:#EDF3EE;--ink-soft:#A9BDAF;--mint:#20503A;--mint-text:#BFE36A;--sidebar:#0D1A14;--sidebar-active:#1D3428}
+body.dark .quick-card,body.dark .journey-card,body.dark .lab-item,body.dark .know-card,body.dark .bubble-answer,body.dark .context-card,body.dark .lang-switch,body.dark .live-clock,body.dark .card,body.dark input[type=text],body.dark select,body.dark textarea{background:var(--card);color:var(--ink)}
+body.dark .autofill-wrap input{background:transparent}
+body.dark .card[style*="FBF8EE"]{background:var(--card)!important}
+@media (max-width:768px){
+ .shell{flex-direction:column}
+ .sidebar{width:100%;padding:10px 0}
+ .sidebar nav{display:flex;overflow-x:auto;flex:none}
+ .sidebar nav button{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;padding:10px 14px}
+ .sidebar nav button.active{border-bottom-color:var(--lime)}
+ .sidebar .footnote{display:none}
+ .main{padding:16px 14px 32px}
+ #toastStack{top:auto;bottom:16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="topbar"><button class="theme-toggle" onclick="openCareModal()">📞 BIS Care</button><button class="theme-toggle" id="themeToggle" aria-pressed="false" onclick="toggleTheme()">Dark</button><div id="liveClock" class="live-clock">--:--:-- --</div></div>
+<div id="toastStack"></div>
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="name">BIS <span>SAARTHI</span></div>
+      <div class="tag">AI Standards Assistant</div>
+    </div>
+    <nav id="nav">
+      <button data-p="home" class="active"><span class="nav-ic">🏠</span>Home</button>
+      <button data-p="assistant"><span class="nav-ic">🤖</span>AI Assistant</button>
+      <button data-p="standards"><span class="nav-ic">📘</span>Find Standards</button>
+      <button data-p="cert"><span class="nav-ic">🏅</span>Certification</button>
+      <button data-p="mfgguide"><span class="nav-ic">🏭</span>Manufacturing Guide</button>
+      <button data-p="docintel"><span class="nav-ic">📄</span>Document Intelligence</button>
+      <button data-p="labs"><span class="nav-ic">🧪</span>Testing Labs</button>
+      <button data-p="hallmark"><span class="nav-ic">💎</span>Hallmarking</button>
+      <button data-p="consumer"><span class="nav-ic">🛡️</span>Consumer Mode</button>
+      <button data-p="complaint"><span class="nav-ic">📮</span>Register Complaint</button>
+    </nav>
+    <div class="footnote" style="padding-bottom:6px;">Admin</div>
+    <div class="footnote">SIH 2026 Prototype</div>
+  </aside>
+
+  <main class="main" id="main">
+
+    <!-- ============ HOME ============ -->
+    <section class="panel active" id="p-home">
+      <div class="page-header">
+        <div><p class="muted" style="margin-bottom:6px;">Your trusted guide to Indian Standards &amp; BIS services</p><h1 style="margin:0;">What do you need help with?</h1></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card" style="display:flex;gap:10px;align-items:center;padding:10px 14px;margin-bottom:20px;">
+        <input type="text" id="homeSearch" placeholder="Ask about a product, standard, certification, hallmarking or testing…" style="flex:1;border:none;padding:8px 4px;">
+        <button class="primary" onclick="askSaarthi()">Ask Saarthi →</button>
+      </div>
+      <div class="role-box" id="roleBox">
+ <button class="role-btn" data-r="mfr" onclick="setRole('mfr')"><b>🏭 I'm a manufacturer</b><span>Find my standard, licence route, labs and documents</span></button>
+ <button class="role-btn" data-r="con" onclick="setRole('con')"><b>🛒 I'm a consumer</b><span>Verify ISI / HUID, understand marks, file a complaint</span></button>
+</div><p id="roleHint" class="muted" aria-live="polite">Pick a role to see the most relevant tools first.</p>
+<div class="quick-grid"><div class="quick-card" onclick="go('mfgguide')"><div class="icon">G</div><b>Manufacturing Guide</b><span>Product-wise BIS compliance roadmap for small units</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('standards')"><div class="icon">S</div><b>Find Standards</b><span>Describe your product and get applicable Indian Standards</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('cert')"><div class="icon">C</div><b>Certification</b><span>Scheme, licence, documents and process guidance</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('labs')"><div class="icon">L</div><b>Testing Labs</b><span>Locate relevant BIS-recognised testing facilities</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('hallmark')"><div class="icon">H</div><b>Hallmarking</b><span>HUID, jewellery hallmarking and consumer guidance</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('docintel')"><div class="icon">D</div><b>Document Intelligence</b><span>Upload BIS documents for AI-assisted analysis, clause detection, and Q&amp;A</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('consumer')"><div class="icon">M</div><b>Consumer Mode</b><span>Verify BIS certification, understand ISI marks, and report issues</span><div class="open-link">Open →</div></div>
+        <div class="quick-card" onclick="go('complaint')"><div class="icon">R</div><b>Register Complaint</b><span>File a grievance and get a tracking reference code</span><div class="open-link">Open →</div></div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <h3>Popular queries</h3>
+        <div class="row" style="margin-top:10px;">
+          <button class="chip" onclick="quickStandard('plastic bottle for drinking water'); go('standards')">Is my water bottle BIS compliant?</button>
+          <button class="chip" onclick="go('cert')">How do I get an ISI licence?</button>
+          <button class="chip" onclick="go('hallmark')">How do I verify a hallmark HUID?</button>
+          <button class="chip" onclick="go('complaint')">How do I file a complaint?</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ AI ASSISTANT ============ -->
+    <section class="panel" id="p-assistant">
+      <div class="page-header">
+        <div><h1>Multilingual Assistant</h1><p>Ask a real question — answered live, in the language you pick.</p></div>
+      </div>
+      <div class="card">
+        <div class="muted" style="margin-bottom:10px;font-weight:600;">Choose language</div>
+        <div class="row" id="langPills" style="margin-bottom:16px;"></div>
+        <div class="chat-layout">
+          <div class="chat-main">
+            <div id="chatThread"></div>
+            <div class="row" style="margin-top:14px;">
+              <input type="text" id="chatInput" placeholder="e.g. Do I need BIS certification to sell plastic buckets?" style="flex:1;min-width:200px;">
+              <button class="primary" id="chatSendBtn" onclick="sendChat()">Send</button>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="chip" onclick="quickChat('What standard applies to a plastic water bottle?')">Water bottle standard</button>
+              <button class="chip" onclick="quickChat('How do I get ISI certification as a small manufacturer?')">ISI certification steps</button>
+              <button class="chip" onclick="quickChat('How do I verify if a product ISI mark is genuine?')">Verify an ISI mark</button>
+            </div>
+          </div>
+          <div class="chat-side">
+            <div class="context-card">
+              <b>How this works</b>
+              <ul>
+                <li>Live model call, not scripted text</li>
+                <li>Same thread keeps prior context</li>
+                <li>Answers in the language you pick</li>
+              </ul>
+              <p class="muted" style="margin-top:10px;font-size:11.5px;">Demo uses a general-purpose model with a BIS-focused system prompt — a production build would ground it on the actual BIS standards corpus via retrieval, as in the working-overview architecture.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FIND STANDARDS ============ -->
+    <section class="panel" id="p-standards">
+      <div class="page-header">
+        <div><h1>Find Standards</h1><p>Describe your product to find the applicable Indian Standard.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px;">
+          <div class="autofill-wrap" style="flex:1;min-width:220px;">
+            <div class="autofill-ghost" id="stdInputGhost"></div>
+            <input type="text" id="stdInput" placeholder="e.g. plastic bottle for drinking water">
+          </div>
+          <button class="primary" onclick="lookupStandard()">Search</button>
+        </div>
+        <div class="row">
+          <button class="chip" onclick="quickStandard('plastic bottle for drinking water')">Water bottle</button>
+          <button class="chip" onclick="quickStandard('plastic bucket household')">Plastic bucket</button>
+          <button class="chip" onclick="quickStandard('electric kettle')">Electric kettle</button>
+          <button class="chip" onclick="quickStandard('helmet')">Helmet</button>
+        </div>
+        <div id="stdResult" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px;">
+          <p class="muted" style="font-style:italic;">Try a product above, or type your own and press search.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CERTIFICATION ============ -->
+    <section class="panel" id="p-cert">
+      <div class="page-header">
+        <div><h1>Certification Guide</h1><p>Understand the likely BIS route, documents, testing and licence journey.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card row-between" style="margin-bottom:14px;">
+        <div>
+          <div class="muted" style="font-size:11.5px;">Selected product</div>
+          <select id="certProduct" onchange="renderCert()" style="border:none;padding:0;font-size:16px;font-weight:700;background:none;">
+            <option value="kettle">Electric kettle</option>
+            <option value="bottle">Plastic water bottle</option>
+            <option value="jewellery">Gold jewellery</option>
+          </select>
+        </div>
+        <div style="font-size:13px;color:var(--mint-text);font-weight:600;" id="certRoute">Likely route: Product Certification / Scheme I</div>
+      </div>
+      <div class="card">
+        <h3>Typical journey</h3>
+        <ul class="steps" id="certSteps"></ul>
+      </div>
+      <p class="muted" style="font-style:italic;">Guidance compiled from public BIS scheme pages — confirm applicability against current BIS notifications.</p>
+    </section>
+
+    <!-- ============ MANUFACTURING GUIDE ============ -->
+    <section class="panel" id="p-mfgguide">
+      <div class="page-header">
+        <div><h1>Manufacturing Guide</h1><p>Tell us what you want to manufacture — get a step-by-step BIS compliance roadmap.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+
+      <div class="card" id="mfgIntro">
+        <h3>I want to manufacture a product</h3>
+        <p class="muted" style="margin-bottom:14px;">What do you want to manufacture?</p>
+        <div class="row" style="margin-bottom:12px;">
+          <div class="autofill-wrap" style="flex:1;min-width:220px;">
+            <div class="autofill-ghost" id="mfgInputGhost"></div>
+            <input type="text" id="mfgInput" placeholder="Type a product, e.g. plastic water bottle">
+          </div>
+          <button class="primary" onclick="searchMfg()">Generate roadmap</button>
+        </div>
+        <div class="row">
+          <button class="chip" onclick="quickMfg('bottle')">Plastic water bottle</button>
+          <button class="chip" onclick="quickMfg('bucket')">Plastic bucket</button>
+          <button class="chip" onclick="quickMfg('kettle')">Electric kettle</button>
+          <button class="chip" onclick="quickMfg('helmet')">Helmet</button>
+          <button class="chip" onclick="quickMfg('jewellery')">Jewellery</button>
+        </div>
+      </div>
+
+      <div id="mfgRoadmap" style="display:none;">
+        <div class="card">
+          <div class="row" style="justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:flex-start;">
+            <div>
+              <div class="muted" style="font-size:10.5px;font-weight:700;letter-spacing:0.04em;">PRODUCT</div>
+              <div style="font-size:17px;font-weight:700;" id="mfgProductName">—</div>
+            </div>
+            <div style="min-width:190px;">
+              <div class="muted" style="font-size:10.5px;font-weight:700;letter-spacing:0.04em;">COMPLIANCE ROADMAP</div>
+              <div style="background:var(--line);border-radius:6px;height:7px;margin-top:7px;overflow:hidden;">
+                <div style="background:var(--green);height:100%;width:100%;"></div>
+              </div>
+              <div class="muted" style="font-size:11px;margin-top:4px;">13 of 13 stages generated</div>
+            </div>
+            <div style="max-width:280px;">
+              <div class="muted" style="font-size:10.5px;font-weight:700;letter-spacing:0.04em;">NEXT ACTION</div>
+              <div style="font-size:12.5px;margin-top:4px;" id="mfgNextAction">—</div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:16px;">
+            <button class="primary" onclick="continueToLabs()">Continue to Testing &amp; Labs →</button>
+            <button class="chip" onclick="resetMfg()">Choose a different product</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:14px;">Your BIS Compliance Roadmap</h3>
+          <div class="journey" id="mfgJourney"></div>
+        </div>
+
+        <p class="muted" style="font-style:italic;">Knowledge compiled from public BIS notifications and scheme pages. Requirements change — verify against bis.gov.in before applying.</p>
+      </div>
+    </section>
+
+    <!-- ============ TESTING LABS ============ -->
+    <section class="panel" id="p-labs">
+      <div class="page-header">
+        <div><h1>Testing Laboratory Finder</h1><p>Find laboratories by standard, product category and location.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="row" style="gap:16px;align-items:flex-end;">
+          <div style="flex:1;min-width:190px;">
+            <label class="muted" style="font-weight:600;display:block;margin-bottom:6px;">Standard or product category</label>
+            <div class="autofill-wrap">
+              <div class="autofill-ghost" id="labStandardGhost"></div>
+              <input type="text" id="labStandard" value="IS 302 (Part 2/Sec 15)">
+            </div>
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <label class="muted" style="font-weight:600;display:block;margin-bottom:6px;">Location (city or state)</label>
+            <div class="autofill-wrap">
+              <div class="autofill-ghost" id="labLocationGhost"></div>
+              <input type="text" id="labLocation" value="Karnataka">
+            </div>
+          </div>
+          <button class="primary" onclick="renderLabs()">Search labs</button>
+          <button class="chip" onclick="clearLabSearch()">Clear</button>
+        </div>
+      </div>
+      <div class="row-between" style="margin-bottom:10px;">
+        <h3 style="font-size:14.5px;margin:0;" id="labResultsTitle">Suggested laboratories</h3>
+      </div>
+      <div class="muted" id="labAutoNote" style="display:none;font-size:12px;margin-bottom:10px;color:var(--mint-text);font-weight:600;"></div>
+      <div id="labResults"></div>
+    </section>
+
+    <!-- ============ HALLMARKING ============ -->
+    <section class="panel" id="p-hallmark">
+      <div class="page-header">
+        <div><h1>Hallmarking &amp; HUID</h1><p>Consumer-friendly guidance for precious metal jewellery.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card" style="background:#FBF8EE;">
+        <h3>Verify a HUID</h3>
+        <p class="muted" style="margin-bottom:12px;">Enter the 6-character HUID from your hallmarked jewellery.</p>
+        <div class="row">
+          <input type="text" id="huidInput" placeholder="AB12CD" style="min-width:200px;">
+          <button class="primary" onclick="verifyHuid()">Verify</button>
+        </div>
+        <div id="huidResult" style="margin-top:14px;"></div>
+      </div>
+
+      <h3 style="font-size:14.5px;margin:18px 0 10px;">Know your hallmark</h3>
+      <div class="know-grid">
+        <div class="know-card"><div class="know-num">1</div><b>BIS logo</b><span>Identifies BIS hallmarking</span></div>
+        <div class="know-card"><div class="know-num">2</div><b>Purity / fineness</b><span>Example: 22K916</span></div>
+        <div class="know-card"><div class="know-num">3</div><b>HUID</b><span>Unique identification for the article</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Consumer help</h3>
+        <p class="muted" style="margin-bottom:12px;">Bought jewellery without a proper hallmark? Saarthi guides verification, complaints and next steps.</p>
+        <button class="primary" onclick="go('assistant')">Ask a consumer query</button>
+      </div>
+    </section>
+
+    <!-- ============ DOCUMENT INTELLIGENCE ============ -->
+    <section class="panel" id="p-docintel">
+      <div class="page-header">
+        <div><h1>Document Intelligence</h1><p>Paste or upload BIS document text for AI-assisted clause detection and Q&amp;A.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card">
+        <label class="muted" style="font-weight:600;display:block;margin-bottom:8px;">Document text</label>
+        <textarea id="docText" rows="6" style="width:100%;font-family:inherit;font-size:13.5px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;" placeholder="Paste a BIS standard excerpt, certificate, or test report text here…"></textarea>
+        <div class="row" style="margin-top:12px;">
+          <button class="primary" onclick="analyzeDoc()">Analyze document</button>
+          <button class="chip" onclick="quickDoc()">Try a sample excerpt</button>
+        </div>
+        <div id="docResult" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- ============ CONSUMER MODE ============ -->
+    <section class="panel" id="p-consumer">
+      <div class="page-header">
+        <div><h1>Consumer Mode</h1><p>Verify BIS certification, understand ISI marks, and report issues.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card">
+        <h3>Verify a product's ISI licence</h3>
+        <p class="muted" style="margin-bottom:12px;">Enter the licence number printed near the ISI mark on the product.</p>
+        <div class="row">
+          <input type="text" id="consumerLic" placeholder="e.g. CM/L-1234567" style="flex:1;min-width:200px;">
+          <button class="primary" onclick="consumerVerify()">Verify</button>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button class="chip" onclick="quickConsumer('CM/L-1234567')">Try CM/L-1234567</button>
+          <button class="chip" onclick="quickConsumer('CM/L-0000000')">Try unknown number</button>
+        </div>
+        <div id="consumerResult" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px;"></div>
+      </div>
+      <div class="card">
+        <h3>Need to talk to BIS?</h3><p class="muted" style="margin-bottom:12px;">Find your BIS regional office by state.</p><button class="primary" onclick="openCareModal()">📍 Find BIS customer care</button></div>
+      <div class="card">
+        <h3>Not satisfied with a product?</h3>
+        <p class="muted" style="margin-bottom:12px;">If a product seems non-compliant, counterfeit, or unsafe, register a formal complaint.</p>
+        <button class="primary" onclick="go('complaint')">Report an issue →</button>
+      </div>
+    </section>
+
+    <!-- ============ REGISTER COMPLAINT ============ -->
+    <section class="panel" id="p-complaint">
+      <div class="page-header">
+        <div><h1>Register Complaint</h1><p>File a grievance about a non-compliant or counterfeit product and get a tracking reference.</p></div>
+        <div class="lang-switch"><button class="active">EN</button><button>हिंदी</button><button>తెలుగు</button></div>
+      </div>
+      <div class="card">
+        <div class="row" style="margin-bottom:12px;">
+          <div style="flex:1;min-width:200px;">
+            <label class="muted" style="font-weight:600;display:block;margin-bottom:6px;">Product name</label>
+            <input type="text" id="compProduct" style="width:100%;" placeholder="e.g. Plastic water can, 20L">
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <label class="muted" style="font-weight:600;display:block;margin-bottom:6px;">Issue type</label>
+            <select id="compIssue" style="width:100%;">
+              <option>No ISI mark visible</option>
+              <option>Suspected counterfeit mark</option>
+              <option>Product failed / broke unexpectedly</option>
+              <option>Labelling missing required information</option>
+            </select>
+          </div>
+        </div>
+        <label class="muted" style="font-weight:600;display:block;margin-bottom:6px;">Details</label>
+        <textarea id="compDetails" rows="4" style="width:100%;font-family:inherit;font-size:13.5px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;" placeholder="Where and when purchased, batch number if visible, etc."></textarea>
+        <button class="primary" style="margin-top:12px;" onclick="submitComplaint()">Submit complaint</button>
+        <div id="compResult" style="margin-top:16px;border-top:1px dashed var(--line);padding-top:16px;"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ---------- toast notifications ---------- */
+function toast(msg){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  stack.appendChild(el);
+  setTimeout(()=>el.remove(), 3000);
+}
+
+/* ---------- nav ---------- */
+function go(p){
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
+  document.querySelectorAll('.panel').forEach(s=>s.classList.remove('active'));
+  document.getElementById('p-'+p).classList.add('active');
+}
+document.getElementById('nav').addEventListener('click', e=>{
+  const btn = e.target.closest('button');
+  if(btn) go(btn.dataset.p);
+});
+
+/* ---------- top-right lang switches (cosmetic, all mirror each other) ---------- */
+document.querySelectorAll('.lang-switch').forEach(sw=>{
+  if(sw.id==='assistLangSwitch') return;
+  sw.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      sw.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+});
+
+/* ---------- AI Assistant: live model-backed chat ---------- */
+const LANGS = [
+  { code:'en', label:'English', name:'English' },
+  { code:'hi', label:'हिंदी', name:'Hindi' },
+  { code:'te', label:'తెలుగు', name:'Telugu' },
+];
+let activeLang = 'en';
+let chatHistory = []; // {role, content}
+
+function renderLangPills(){
+  const box = document.getElementById('langPills');
+  box.innerHTML = LANGS.map(l=>`<button class="chip" style="${l.code===activeLang?'background:var(--green-dark);color:#fff;border-color:var(--green-dark);':''}" onclick="setLang('${l.code}')">${l.label}</button>`).join('');
+}
+function setLang(code){
+  activeLang = code;
+  renderLangPills();
+}
+renderLangPills();
+
+function quickChat(text){
+  document.getElementById('chatInput').value = text;
+  sendChat();
+}
+
+function appendBubble(role, text){
+  const thread = document.getElementById('chatThread');
+  const div = document.createElement('div');
+  if(role === 'user'){
+    div.className = 'bubble-user';
+    div.textContent = text;
+  } else {
+    div.className = 'bubble-answer';
+    div.innerHTML = `<div class="who">BIS Saarthi</div><div>${text}</div>`;
+  }
+  div.style.marginBottom = '10px';
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+  return div;
+}
+
+async function sendChat(){
+  const input = document.getElementById('chatInput');
+  const q = input.value.trim();
+  if(!q) return;
+  const btn = document.getElementById('chatSendBtn');
+  appendBubble('user', q);
+  input.value = '';
+  btn.disabled = true;
+  btn.textContent = 'Thinking…';
+  const loadingBubble = appendBubble('assistant', '<span class="muted">Generating response…</span>');
+
+  chatHistory.push({ role:'user', content:q });
+
+  const lang = LANGS.find(l=>l.code===activeLang);
+  const systemPrompt = `You are BIS Saarthi, an AI assistant that helps users understand Indian Standards (BIS), certification schemes, testing requirements, hallmarking, and consumer protection. Respond ONLY in ${lang.name} (write the entire reply in ${lang.name}, using its native script, regardless of what language the question was asked in). Keep answers concise (3-5 sentences), practical, and in plain language. If you name a specific IS standard number, make clear it is illustrative/for demo purposes and should be verified against BIS's official catalogue rather than stated as fact. Do not claim certainty about exact clause numbers.`;
+
+  try{
+    const answer = await getModelReply(systemPrompt, chatHistory);
+    loadingBubble.innerHTML = `<div class="who">BIS Saarthi</div><div>${escapeHtml(answer).replace(/\n/g,'<br>')}</div>`;
+    chatHistory.push({ role:'assistant', content:answer });
+  } catch(err){
+    loadingBubble.innerHTML = `<div class="who">BIS Saarthi</div><div style="color:var(--ink-soft);">Couldn't reach the model: ${err.message}. Please try again.</div>`;
+    chatHistory.pop(); // remove the unanswered user turn so retry doesn't duplicate
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Send';
+}
+
+/* Calls Claude via the published-page "sample" capability when available
+   (this is what actually works once the page is deployed); falls back to
+   a direct API call, which only works inside the chat's own artifact
+   preview, never on a deployed/published page. */
+async function getModelReply(systemPrompt, history){
+  if(window.claude && typeof window.claude.use === 'function'){
+    const sample = await window.claude.use('sample');
+    if(sample){
+      const turns = [
+        { role:'user', content: systemPrompt },
+        { role:'assistant', content: 'Understood — I will follow those instructions for the rest of this conversation.' },
+        ...history
+      ];
+      const result = await sample(turns, { modelTier:'default' });
+      return result.text;
+    }
+  }
+  // Fallback path — only reachable in the private chat artifact preview.
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: history
+    })
+  });
+  const data = await response.json();
+  if(!response.ok || data.error){
+    throw new Error((data.error && data.error.message) || `Request failed (${response.status})`);
+  }
+  const textBlock = (data.content || []).find(b => b.type === 'text');
+  return textBlock ? textBlock.text : "Sorry, I couldn't generate a response.";
+}
+document.getElementById('chatInput').addEventListener('keydown', e=>{ if(e.key==='Enter') sendChat(); });
+
+/* ---------- Find Standards ---------- */
+const STANDARDS_DB = [
+  { keys:['water bottle','drinking water','plastic bottle','water can','water storage'],
+    code:'IS 15410:2020', clause:'Clause 4.2 — material safety for water contact',
+    note:'Covers plastic containers and bottles used to store or transport drinking water. Certification is mandatory for manufacturers.' },
+  { keys:['bucket','plastic bucket','household plastic','mug','plastic container'],
+    code:'IS 12235 (Part 6):2004', clause:'Clause 3.1 — general household plastic ware',
+    note:'Covers general-purpose household plastic articles, including durability and material safety requirements.' },
+  { keys:['electric kettle','kettle'],
+    code:'IS 302 (Part 2/Sec 15)', clause:'Clause 15 — safety of electric kettles',
+    note:'Falls under mandatory product certification; testing covers heating element safety and insulation.' },
+  { keys:['helmet','safety helmet'],
+    code:'IS 4151:2015', clause:'Clause 6 — impact and penetration resistance',
+    note:'Mandatory BIS certification — sale of non-certified helmets is prohibited under the Motor Vehicles Act read with BIS rules.' },
+];
+function quickStandard(q){ document.getElementById('stdInput').value=q; lookupStandard(); }
+function lookupStandard(){
+  const q = document.getElementById('stdInput').value.trim().toLowerCase();
+  const box = document.getElementById('stdResult');
+  if(!q){ box.innerHTML='<p class="muted" style="font-style:italic;">Type a product description first.</p>'; return; }
+  const match = STANDARDS_DB.find(s=>s.keys.some(k=>q.includes(k)||k.includes(q)));
+  if(match){
+    box.innerHTML = `<span class="badge ok">Standard found</span>
+      <p style="margin:0 0 6px;font-size:16px;font-weight:700;">${match.code}</p>
+      <p style="margin:0 0 8px;font-size:13px;color:var(--ink-soft);">${match.note}</p>
+      <div class="citation"><b>Reference:</b> ${match.clause}</div>`;
+  } else {
+    box.innerHTML = `<span class="badge warn">No exact match</span>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0;">No standard in this demo dataset matches that description. A production version would fall back to a broader semantic search across the full BIS catalogue.</p>`;
+  }
+}
+
+/* ---------- Certification ---------- */
+const CERT_DATA = {
+  kettle: { route:'Product Certification / Scheme I', steps:[
+    ['Identify applicable standard','Confirm product scope and mandatory status'],
+    ['Testing','Test at an appropriate recognised laboratory'],
+    ['Apply','Submit application, factory details and documents'],
+    ['Assessment','BIS scrutiny / inspection as applicable'],
+    ['Licence & marking','Comply with licence conditions and use Standard Mark'],
+  ]},
+  bottle: { route:'Product Certification / Scheme I', steps:[
+    ['Identify applicable standard','IS 15410:2020 — plastic containers for drinking water'],
+    ['Testing','Material safety and food-contact testing at a recognised lab'],
+    ['Apply','Submit application with manufacturing unit details'],
+    ['Assessment','Factory inspection by a BIS officer'],
+    ['Licence & marking','Licence granted, ISI mark usage begins'],
+  ]},
+  jewellery: { route:'Hallmarking Scheme', steps:[
+    ['Jeweller registration','Register with BIS to sell hallmarked jewellery'],
+    ['Send to Assaying Centre','Jewellery tested for purity at a recognised centre'],
+    ['HUID assignment','Unique Hallmark ID engraved or lasered on each piece'],
+    ['Consumer verification','Buyers verify HUID before purchase'],
+  ]},
+};
+function renderCert(){
+  const key = document.getElementById('certProduct').value;
+  const d = CERT_DATA[key];
+  document.getElementById('certRoute').textContent = 'Likely route: '+d.route;
+  document.getElementById('certSteps').innerHTML = d.steps.map((s,i)=>`
+    <li><div class="step-num">${i+1}</div><div class="step-body"><b>${s[0]}</b><p>${s[1]}</p></div></li>`).join('');
+}
+renderCert();
+
+/* ---------- Testing Labs (searchable — DEMO DATA) ---------- */
+const LAB_DB = [
+  { name:'Central Electrical Testing Lab', city:'Bengaluru', state:'Karnataka',
+    categories:['Electrical appliances','Safety testing'], standards:['IS 302','IS 4151'] },
+  { name:'Regional Product Testing Centre', city:'Chennai', state:'Tamil Nadu',
+    categories:['Household appliances','Electrical safety'], standards:['IS 302','IS 12235'] },
+  { name:'National Test House', city:'Mumbai', state:'Maharashtra',
+    categories:['Electrical & electronic product testing'], standards:['IS 302','IS 4151'] },
+  { name:'Central Plastics Testing Lab', city:'Bengaluru', state:'Karnataka',
+    categories:['Plastics','Household plastic ware'], standards:['IS 15410','IS 12235'] },
+  { name:'Assaying & Hallmarking Centre', city:'Jaipur', state:'Rajasthan',
+    categories:['Jewellery','Hallmarking / purity assay'], standards:['IS 1417','Hallmarking'] },
+  { name:'Southern Product Safety Lab', city:'Hyderabad', state:'Telangana',
+    categories:['General product safety','Helmets'], standards:['IS 4151','IS 302'] },
+];
+
+/* ----- lightweight spell-correction (pure JS, no libraries) -----
+   Builds a vocabulary of known words from the lab dataset itself
+   (categories, standards, cities, states) and nudges misspelled
+   search words toward the nearest known term before filtering. */
+const WORD_VOCAB = (() => {
+  const words = new Set();
+  LAB_DB.forEach(l=>{
+    [...l.categories, l.city, l.state].forEach(phrase=>{
+      phrase.split(/[^a-zA-Z]+/).forEach(w=>{ if(w.length>=4) words.add(w.toLowerCase()); });
+    });
+  });
+  return [...words];
+})();
+
+function levenshtein(a, b){
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, (_,i)=>[i, ...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++) dp[0][j] = j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+function closestWord(word){
+  let best=null, bestDist=Infinity;
+  WORD_VOCAB.forEach(v=>{
+    const d = levenshtein(word, v);
+    if(d < bestDist){ bestDist = d; best = v; }
+  });
+  if(!best) return null;
+  const ratio = bestDist / Math.max(word.length, best.length);
+  return ratio <= 0.34 && bestDist > 0 ? { match:best, ratio } : null;
+}
+
+/* Auto-corrects a free-text phrase word by word (skips numbers/short
+   tokens like "IS", "302" so standard codes are left untouched). */
+function autoCorrectPhrase(raw){
+  if(!raw) return { corrected:raw, changes:[] };
+  const changes = [];
+  const correctedWords = raw.split(/\s+/).map(token=>{
+    const clean = token.replace(/[()/,]/g,'');
+    if(clean.length < 4 || /\d/.test(clean)) return token;
+    const lower = clean.toLowerCase();
+    if(WORD_VOCAB.includes(lower)) return token; // already a known word
+    const fix = closestWord(lower);
+    if(fix){ changes.push({ from:token, to:fix.match }); return fix.match; }
+    return token;
+  });
+  return { corrected: correctedWords.join(' '), changes };
+}
+
+function labMatches(l, stdQ, locQ){
+  const stdOk = !stdQ || l.standards.some(s => s.toLowerCase().includes(stdQ) || stdQ.includes(s.toLowerCase()))
+                     || l.categories.some(c => c.toLowerCase().includes(stdQ));
+  const locOk = !locQ || l.city.toLowerCase().includes(locQ) || l.state.toLowerCase().includes(locQ);
+  return stdOk && locOk;
+}
+
+function renderLabs(){
+  const stdRawInput = document.getElementById('labStandard').value.trim();
+  const locRawInput = document.getElementById('labLocation').value.trim();
+  const box = document.getElementById('labResults');
+  const title = document.getElementById('labResultsTitle');
+  const noteBox = document.getElementById('labAutoNote');
+
+  // auto-analyze / auto-correct both fields before matching
+  const stdFix = autoCorrectPhrase(stdRawInput);
+  const locFix = autoCorrectPhrase(locRawInput);
+  const stdQ = stdFix.corrected.toLowerCase();
+  const locQ = locFix.corrected.toLowerCase();
+
+  const allChanges = [...stdFix.changes, ...locFix.changes];
+  if(allChanges.length){
+    noteBox.style.display = 'block';
+    noteBox.innerHTML = `✓ Auto-corrected: ` + allChanges.map(c=>`“${c.from}” → “${c.to}”`).join(', ');
+  } else {
+    noteBox.style.display = 'none';
+    noteBox.innerHTML = '';
+  }
+
+  const results = LAB_DB.filter(l => labMatches(l, stdQ, locQ));
+
+  if(!stdQ && !locQ){
+    title.textContent = 'All laboratories';
+  } else {
+    title.textContent = `${results.length} laborator${results.length===1?'y':'ies'} matching your search`;
+  }
+
+  if(results.length === 0){
+    box.innerHTML = `
+      <div class="card">
+        <span class="badge warn">No labs found</span>
+        <p class="muted" style="margin:0;">No demo laboratory matches “${stdQ || 'any standard'}” in “${locQ || 'any location'}”. Try a broader term — e.g. just the standard number, or clear the location field.</p>
+      </div>`;
+    return;
+  }
+
+  box.innerHTML = results.map((l,i)=>`
+    <div class="lab-item" style="flex-direction:column;align-items:stretch;">
+      <div class="row-between" style="width:100%;">
+        <div><b>${l.name}</b><div class="loc">${l.city}, ${l.state}</div><div class="cat">${l.categories.join(' · ')}</div></div>
+        <a class="view" href="#" onclick="toggleLabCap(event,${i})">View capabilities →</a>
+      </div>
+      <div class="citation" id="labcap-${i}" style="display:none;margin-top:10px;">
+        <b>Standards typically handled:</b> ${l.standards.join(', ')}<br>
+        <span class="muted">Indicative listing from public information — confirm current BIS recognition in the official BIS laboratory directory.</span>
+      </div>
+    </div>`).join('');
+}
+renderLabs();
+
+function toggleLabCap(e, i){
+  e.preventDefault();
+  const el = document.getElementById('labcap-'+i);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function clearLabSearch(){
+  document.getElementById('labStandard').value = '';
+  document.getElementById('labLocation').value = '';
+  renderLabs();
+}
+document.getElementById('labStandard').addEventListener('keydown', e=>{ if(e.key==='Enter') renderLabs(); });
+document.getElementById('labLocation').addEventListener('keydown', e=>{ if(e.key==='Enter') renderLabs(); });
+
+/* ---------- Hallmarking ---------- */
+const HUID_DB = {
+  'AB12CD': { status:'ok', purity:'22K916', jeweller:'Sample Jewellers, Jaipur' },
+  'XY99ZZ': { status:'not_found' },
+};
+function verifyHuid(){
+  const q = document.getElementById('huidInput').value.trim().toUpperCase();
+  const box = document.getElementById('huidResult');
+  if(!q){ box.innerHTML='<p class="muted" style="font-style:italic;">Enter a HUID first.</p>'; return; }
+  const rec = HUID_DB[q] || (q==='AB12CD' ? HUID_DB['AB12CD'] : null);
+  if(rec && rec.status==='ok'){
+    box.innerHTML = `<span class="badge ok">Verified</span>
+      <p style="margin:0;font-size:13.5px;"><b>${rec.purity}</b> · registered to ${rec.jeweller}</p>`;
+    toast('✓ HUID verified successfully');
+  } else {
+    box.innerHTML = `<span class="badge bad">Not found</span>
+      <p style="margin:0;font-size:13px;color:var(--ink-soft);">No record for <b>${q}</b> in this demo dataset. In production this checks BIS's live HUID registry.</p>`;
+    toast('No matching HUID found');
+  }
+}
+
+document.getElementById('stdInput').addEventListener('keydown', e=>{ if(e.key==='Enter') lookupStandard(); });
+document.getElementById('huidInput').addEventListener('keydown', e=>{ if(e.key==='Enter') verifyHuid(); });
+
+/* ---------- Home search ---------- */
+function askSaarthi(){
+  const q = document.getElementById('homeSearch').value.trim();
+  go('assistant');
+  if(q){
+    document.getElementById('chatInput').value = q;
+    sendChat();
+  }
+}
+document.getElementById('homeSearch').addEventListener('keydown', e=>{ if(e.key==='Enter') askSaarthi(); });
+
+/* ---------- Document Intelligence (mock clause detection) ---------- */
+const SAMPLE_DOC = `Clause 4.2: Containers intended for packaging drinking water shall be manufactured from virgin plastic material only. Recycled plastic shall not be used in any layer in contact with water.
+Clause 5.1: Every container shall be marked with the manufacturer's name, batch number, and the Standard Mark where applicable.
+Clause 6.3: Sample containers shall be tested for migration of harmful substances as per Annex C before certification is granted.`;
+
+function quickDoc(){
+  document.getElementById('docText').value = SAMPLE_DOC;
+  analyzeDoc();
+}
+
+function analyzeDoc(){
+  const text = document.getElementById('docText').value.trim();
+  const box = document.getElementById('docResult');
+  if(!text){ box.innerHTML = '<p class="muted" style="font-style:italic;">Paste some document text first, or try the sample excerpt.'; return; }
+  // naive clause detector: find lines/sentences starting with "Clause"
+  const clauseMatches = text.match(/Clause\s+[\d.]+[^.]*\./gi) || [];
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  let clausesHtml;
+  if(clauseMatches.length){
+    clausesHtml = '<ul class="steps">' + clauseMatches.map((c,i)=>`<li><div class="step-num">${i+1}</div><div class="step-body"><b>Clause detected</b><p>${c.trim()}</p></div></li>`).join('') + '</ul>';
+  } else {
+    clausesHtml = '<p class="muted" style="font-style:italic;">No explicit "Clause" references detected in this text — a production model would use semantic parsing rather than keyword matching.</p>';
+  }
+  box.innerHTML = `
+    <span class="badge ok">Analysis complete</span>
+    <p class="muted" style="margin:0 0 12px;">${wordCount} words scanned · ${clauseMatches.length} clause reference(s) found</p>
+    ${clausesHtml}
+    <div class="citation" style="margin-top:12px;">This is a keyword-based demo parser. A production build would use the LLM with a structured-extraction prompt (or fine-tuned NER) to pull clauses, obligations, and cross-references reliably from scanned or pasted BIS documents.</div>
+  `;
+}
+
+/* ---------- Consumer Mode: verify licence (reuses LICENCE_DB) ---------- */
+function quickConsumer(v){
+  document.getElementById('consumerLic').value = v;
+  consumerVerify();
+}
+function consumerVerify(){
+  const q = document.getElementById('consumerLic').value.trim().toUpperCase();
+  const box = document.getElementById('consumerResult');
+  if(!q){ box.innerHTML = '<p class="muted" style="font-style:italic;">Enter a licence number first.</p>'; return; }
+  const rec = LICENCE_DB[q];
+  if(!rec){
+    box.innerHTML = `<span class="badge bad">Not found</span>
+      <p class="muted" style="margin:0;">No licence matching <b>${q}</b> in this demo dataset. In the live version this checks BIS's licensee database directly — treat unverifiable numbers with caution and consider reporting the product.</p>`;
+    return;
+  }
+  if(rec.status === 'ok'){
+    box.innerHTML = `<span class="badge ok">Active licence</span>
+      <p style="margin:0 0 4px;font-size:14.5px;font-weight:600;">${rec.holder}</p>
+      <p class="muted" style="margin:0;">${rec.product} · ${rec.standard} · valid till ${rec.validTill}</p>`;
+  } else {
+    box.innerHTML = `<span class="badge warn">Licence expired</span>
+      <p style="margin:0 0 4px;font-size:14.5px;font-weight:600;">${rec.holder}</p>
+      <p class="muted" style="margin:0;">${rec.product} · ${rec.standard} · expired ${rec.validTill}. Consider reporting this product.</p>`;
+  }
+}
+
+/* ---------- Register Complaint (with tracking code) ---------- */
+function submitComplaint(){
+  const product = document.getElementById('compProduct').value.trim();
+  const issue = document.getElementById('compIssue').value;
+  const details = document.getElementById('compDetails').value.trim();
+  const box = document.getElementById('compResult');
+  if(!product){
+    box.innerHTML = '<p style="color:#B23A32;font-size:13px;">Enter a product name first.</p>';
+    return;
+  }
+  const trackingCode = 'BIS-' + Math.random().toString(36).slice(2,8).toUpperCase();
+  box.innerHTML = `
+    <span class="badge ok">Complaint registered</span>
+    <p style="margin:0 0 8px;font-size:15px;font-weight:700;">Tracking reference: ${trackingCode}</p>
+    <div class="citation">
+      <b>Product:</b> ${product}<br>
+      <b>Issue category:</b> ${issue}<br>
+      <b>Details:</b> ${details || '(none provided)'}<br><br>
+      This tracking code is generated locally for this demo. In production, submission would route through BIS Care / CPGRAMS and the tracking code would come from their system.
+    </div>
+  `;
+  toast(`✓ Complaint registered — ${trackingCode}`);
+}
+
+/* =========================================================
+   MANUFACTURING GUIDE
+   Demo data only. Each product record below is deliberately
+   structured so a real BIS retrieval/API backend can be swapped
+   in later without changing renderMfgRoadmap() or the markup.
+   ========================================================= */
+const MFG_PRODUCTS = {
+  bottle: {
+    name: 'Plastic water bottle',
+    standard: { code:'IS 15410:2020', title:'Plastic containers for packaging drinking water', clause:'Clause 4.2 — material safety for water contact' },
+    certificationStatus: 'Mandatory',
+    certificationRoute: 'Product Certification Scheme (ISI Mark) — Scheme I',
+    requirements: ['Water-contact layers must use virgin plastic, not recycled material', 'Must pass migration / leaching safety limits', 'Container must carry batch number and Standard Mark when licensed'],
+    infrastructure: ['In-house or contracted QC testing capability', 'Documented raw-material traceability', 'Controlled manufacturing environment for food-grade plastics'],
+    machinery: ['Blow/injection moulding machine sized to bottle capacity', 'Basic material QC equipment (weighing, visual inspection)', 'Marking/embossing unit for the Standard Mark'],
+    testing: ['Material migration / leaching test', 'Dimensional and capacity check', 'Drop and load resistance test'],
+    labs: ['Central Plastics Testing Lab — Bengaluru (demo)', 'Regional Product Testing Centre — Chennai (demo)'],
+    documents: ['Factory layout and machinery list', 'Quality control manual', 'Test reports from a recognised lab', 'Company/factory registration documents'],
+    applicationSteps: ['Submit Form V via the BIS portal', 'Pay the applicable application fee', 'Provide manufacturing unit and QC details'],
+    assessment: 'A BIS officer inspects the factory and QC process; product samples may be drawn for independent lab testing.',
+    marking: 'On grant, the licence holder may use the Standard Mark (ISI) on the product strictly per licence conditions.',
+    postLicence: ['Maintain QC and batch records for periodic audit', 'Renew the licence before expiry', 'Report material or process changes to BIS'],
+    nextAction: 'Confirm the applicable standard, then arrange sample testing at a recognised laboratory.'
+  },
+  bucket: {
+    name: 'Plastic bucket',
+    standard: { code:'IS 12235 (Part 6):2004', title:'General household plastic ware', clause:'Clause 3.1 — general household plastic ware' },
+    certificationStatus: 'Voluntary',
+    certificationRoute: 'Product Certification Scheme (ISI Mark, voluntary) — Scheme I',
+    requirements: ['Adequate wall thickness and load-bearing strength', 'No sharp edges or burrs at handle/rim joints', 'Marking to include manufacturer name and capacity'],
+    infrastructure: ['Basic in-house QC for dimensional checks', 'Storage for raw material batches with lot tracking'],
+    machinery: ['Injection moulding machine for bucket body and handle', 'Handle-fitting / assembly station'],
+    testing: ['Load and drop test', 'Dimensional and capacity verification'],
+    labs: ['Regional Product Testing Centre — Chennai (demo)', 'National Test House — Mumbai (demo)'],
+    documents: ['Factory details and machinery list', 'Sample product specification sheet'],
+    applicationSteps: ['Submit application with product specification', 'Provide factory address and machinery details'],
+    assessment: 'Since certification is voluntary here, assessment is lighter — a documentation review plus sample testing on request.',
+    marking: 'Licensed manufacturers may voluntarily use the Standard Mark to signal quality assurance to consumers.',
+    postLicence: ['Retain test records for consumer or regulator queries', 'Renew voluntarily if continuing to use the mark'],
+    nextAction: 'Since certification is voluntary, decide whether the ISI mark adds enough market value before proceeding.'
+  },
+  kettle: {
+    name: 'Electric kettle',
+    standard: { code:'IS 302 (Part 2/Sec 15)', title:'Safety of electric kettles', clause:'Clause 15 — safety of electric kettles' },
+    certificationStatus: 'Mandatory',
+    certificationRoute: 'Product Certification Scheme (ISI Mark) — Scheme I',
+    requirements: ['Heating element must meet insulation and leakage-current limits', 'Auto cut-off / dry-boil protection where applicable', 'Enclosure must resist heat deformation'],
+    infrastructure: ['Electrical safety testing setup or access to a recognised lab', 'ESD-safe assembly line for electrical components'],
+    machinery: ['PCB/heating element assembly line', 'High-voltage / insulation resistance test rig', 'Injection moulding for body components'],
+    testing: ['Insulation resistance and leakage current test', 'Temperature rise test', 'Mechanical strength and stability test'],
+    labs: ['Central Electrical Testing Lab — Bengaluru (demo)', 'National Test House — Mumbai (demo)'],
+    documents: ['Circuit diagram and component list', 'Factory layout and machinery list', 'Type test report from a recognised lab'],
+    applicationSteps: ['Submit Form V with electrical safety test reports', 'Pay applicable fee', 'Provide factory and QC details'],
+    assessment: 'BIS officer inspects manufacturing and electrical safety testing setup; samples undergo type testing.',
+    marking: 'Standard Mark usage permitted on grant of licence, subject to ongoing compliance.',
+    postLicence: ['Maintain batch-wise electrical test records', 'Re-test on any design or component change', 'Renew licence periodically'],
+    nextAction: 'Line up electrical safety type-testing early — it typically has the longest lead time in this journey.'
+  },
+  helmet: {
+    name: 'Helmet',
+    standard: { code:'IS 4151:2015', title:'Protective helmets for two-wheeler riders', clause:'Clause 6 — impact and penetration resistance' },
+    certificationStatus: 'Mandatory',
+    certificationRoute: 'Product Certification Scheme (ISI Mark) — Scheme I',
+    requirements: ['Shell must meet impact and penetration resistance limits', 'Strap and buckle strength requirements', 'Minimum weight and field-of-vision specifications'],
+    infrastructure: ['Impact-testing capability or arrangement with a recognised lab', 'Controlled shell-moulding environment'],
+    machinery: ['Shell moulding press (injection or compression)', 'Impact/drop test rig', 'Strap and buckle assembly station'],
+    testing: ['Impact absorption test', 'Penetration resistance test', 'Strap/retention system strength test'],
+    labs: ['National Test House — Mumbai (demo)', 'Central Electrical Testing Lab — Bengaluru (demo, general product wing)'],
+    documents: ['Shell material specification', 'Factory and machinery details', 'Type test report'],
+    applicationSteps: ['Submit Form V with type test reports', 'Provide factory inspection access', 'Pay applicable fee'],
+    assessment: 'BIS officer inspects factory; helmets are sample-tested for impact and penetration resistance.',
+    marking: 'ISI mark required before legal sale — non-certified helmets cannot be marketed under BIS rules.',
+    postLicence: ['Maintain batch test records', 'Re-test on shell material or design change', 'Renew licence periodically'],
+    nextAction: 'Since this category is strictly mandatory, prioritise the impact-test lab booking before scaling production.'
+  },
+  jewellery: {
+    name: 'Gold jewellery',
+    standard: { code:'IS 1417 (Hallmarking)', title:'Hallmarking of gold jewellery / artefacts', clause:'Clause on fineness / purity grading' },
+    certificationStatus: 'Mandatory',
+    certificationRoute: 'Hallmarking Scheme (HUID)',
+    requirements: ['Jewellery must be tested and graded for purity/fineness', 'Each article carries a unique Hallmark ID (HUID)', 'Jeweller must be registered with BIS to sell hallmarked jewellery'],
+    infrastructure: ['Registered jeweller status with BIS', 'Secure handling process for sending articles to an Assaying & Hallmarking Centre'],
+    machinery: ['Not applicable to manufacturing machinery — this route centres on assaying and marking, not production equipment'],
+    testing: ['Purity / fineness assay', 'HUID marking verification'],
+    labs: ['Assaying & Hallmarking Centre — sample demo listing', 'Regional AHC — sample demo listing'],
+    documents: ['Jeweller BIS registration certificate', 'Article-wise purity declaration', 'Assaying centre submission form'],
+    applicationSteps: ['Register as a jeweller with BIS', 'Submit articles to a recognised Assaying & Hallmarking Centre', 'Receive HUID-marked articles back for sale'],
+    assessment: 'Each batch of jewellery is assayed for purity at the centre rather than a factory inspection.',
+    marking: 'Approved articles receive the BIS hallmark, purity grade, and a unique HUID.',
+    postLicence: ['Keep jeweller registration current', 'Ensure every article sold carries a valid HUID', 'Cooperate with periodic BIS checks'],
+    nextAction: 'Confirm jeweller registration status first — it is a prerequisite before any article can be hallmarked.'
+  }
+};
+
+const MFG_KEYS = {
+  bottle: ['water bottle','plastic bottle','drinking water','water can'],
+  bucket: ['bucket','plastic bucket','household plastic'],
+  kettle: ['kettle','electric kettle'],
+  helmet: ['helmet','safety helmet'],
+  jewellery: ['jewellery','jewelry','gold','ornament'],
+};
+
+let currentMfgProduct = null;
+
+function quickMfg(id){
+  document.getElementById('mfgInput').value = MFG_PRODUCTS[id].name;
+  renderMfgRoadmap(id);
+}
+
+function searchMfg(){
+  const q = document.getElementById('mfgInput').value.trim().toLowerCase();
+  if(!q) return;
+  const found = Object.keys(MFG_KEYS).find(id => MFG_KEYS[id].some(k => q.includes(k) || k.includes(q)));
+  if(found){
+    renderMfgRoadmap(found);
+  } else {
+    const box = document.getElementById('mfgRoadmap');
+    box.style.display = 'block';
+    box.innerHTML = `<div class="card"><span class="badge warn">No demo match</span><p class="muted" style="margin:0;">No demo roadmap for that description yet — try one of the example products, e.g. plastic water bottle, plastic bucket, electric kettle, helmet, or jewellery.</p></div>`;
+  }
+}
+
+function stageDefs(p){
+  return [
+    { title:'Applicable Standard', badge:p.certificationStatus==='Mandatory'?'Mandatory':'Voluntary', badgeType:p.certificationStatus==='Mandatory'?'bad':'ok',
+      short:`${p.standard.code} — ${p.standard.title}`, details:[p.standard.clause] },
+    { title:'Mandatory / Voluntary Status', badge:p.certificationStatus, badgeType:p.certificationStatus==='Mandatory'?'bad':'ok',
+      short: p.certificationStatus==='Mandatory' ? 'Certification is compulsory before this product can be legally sold.' : 'Certification is currently voluntary for this product category.', details:[] },
+    { title:'Certification Route', badge:'Route', badgeType:'ok', short:p.certificationRoute, details:[] },
+    { title:'Product Requirements', badge:'Requirements', badgeType:'warn', short:`${p.requirements.length} key requirement(s) identified`, details:p.requirements },
+    { title:'Manufacturing Infrastructure', badge:'Infrastructure', badgeType:'warn', short:'Facility and process expectations for certification readiness.', details:p.infrastructure },
+    { title:'Machinery / Equipment', badge:'Equipment', badgeType:'warn', short:'Typical machinery associated with this product category.', details:p.machinery },
+    { title:'Testing Requirements', badge:'Testing', badgeType:'ok', short:`${p.testing.length} test type(s) typically required`, details:p.testing },
+    { title:'Testing Laboratory', badge:'Labs', badgeType:'ok', short:'Sample recognised laboratories for this category.', details:p.labs },
+    { title:'Required Documents', badge:'Documents', badgeType:'warn', short:`${p.documents.length} document(s) typically needed`, details:p.documents },
+    { title:'Application Process', badge:'Process', badgeType:'ok', short:'Steps to submit the certification application.', details:p.applicationSteps },
+    { title:'Assessment / Inspection', badge:'Assessment', badgeType:'warn', short:p.assessment, details:[] },
+    { title:'Licence / Marking', badge:'Licence', badgeType:'ok', short:p.marking, details:[] },
+    { title:'Post-Licence Compliance', badge:'Ongoing', badgeType:'warn', short:'Obligations that continue after the licence is granted.', details:p.postLicence },
+  ];
+}
+
+function renderMfgRoadmap(id){
+  const p = MFG_PRODUCTS[id];
+  currentMfgProduct = id;
+  document.getElementById('mfgProductName').textContent = p.name;
+  document.getElementById('mfgNextAction').textContent = p.nextAction;
+
+  const stages = stageDefs(p);
+  const journey = document.getElementById('mfgJourney');
+  journey.innerHTML = stages.map((s,i)=>{
+    const detailHtml = s.details && s.details.length
+      ? `<ul>${s.details.map(d=>`<li>${d}</li>`).join('')}</ul>`
+      : `<p style="margin:0;">${s.short}</p>`;
+    return `
+      <div class="journey-item">
+        <div class="journey-num">${i+1}</div>
+        <div class="journey-card">
+          <div class="journey-card-top">
+            <h4>${s.title}</h4>
+            <span class="badge ${s.badgeType}" style="margin:0;">${s.badge}</span>
+          </div>
+          <p class="short">${s.short}</p>
+          <div class="journey-actions">
+            <button onclick="toggleJourney(${i},'detail')">View details</button>
+            <button onclick="toggleJourney(${i},'source')">View source</button>
+          </div>
+          <div class="journey-detail" id="jdetail-${i}">${detailHtml}</div>
+          <div class="journey-source" id="jsource-${i}">Compiled from public BIS information. Always verify the latest IS revision, QCO gazette and scheme rules on bis.gov.in.</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('mfgIntro').style.display = 'none';
+  document.getElementById('mfgRoadmap').style.display = 'block';
+}
+
+function toggleJourney(i, kind){
+  const el = document.getElementById((kind==='detail'?'jdetail-':'jsource-')+i);
+  el.classList.toggle('show');
+}
+
+function resetMfg(){
+  document.getElementById('mfgIntro').style.display = 'block';
+  document.getElementById('mfgRoadmap').style.display = 'none';
+  document.getElementById('mfgInput').value = '';
+}
+
+function continueToLabs(){
+  if(currentMfgProduct){
+    const p = MFG_PRODUCTS[currentMfgProduct];
+    document.getElementById('labStandard').value = p.standard.code;
+  }
+  go('labs');
+  renderLabs();
+}
+
+document.getElementById('mfgInput').addEventListener('keydown', e=>{ if(e.key==='Enter') searchMfg(); });
+
+/* =========================================================
+   LIVE CLOCK — top-right, 12-hour format, updates every second.
+   Persists across all pages since it lives outside the panel
+   switcher (in the fixed topbar), not inside any single panel.
+   ========================================================= */
+function updateLiveClock(){
+  const now = new Date();
+  let h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12; if(h === 0) h = 12;
+  const hh = String(h).padStart(2,'0');
+  const el = document.getElementById('liveClock');
+  if(el) el.textContent = `${hh}:${m}:${s} ${ampm}`;
+}
+updateLiveClock();
+setInterval(updateLiveClock, 1000);
+
+/* =========================================================
+   APPLE-STYLE INLINE AUTOFILL (ghost text, like Safari's URL bar)
+   Reusable across any text input with a finite set of known
+   answers. Shows the rest of the best-matching suggestion in
+   grey after the cursor; Tab / → accepts it, Esc dismisses it.
+   ========================================================= */
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function setupAutofill(inputId, ghostId, getSuggestions){
+  const input = document.getElementById(inputId);
+  const ghost = document.getElementById(ghostId);
+  if(!input || !ghost) return;
+
+  function update(){
+    const val = input.value;
+    if(!val){ ghost.innerHTML = ''; delete input.dataset.ghostFull; return; }
+    const list = getSuggestions();
+    const match = list.find(s => s.toLowerCase().startsWith(val.toLowerCase()) && s.length > val.length);
+    if(match){
+      ghost.innerHTML = `<span class="gh-typed">${escapeHtml(val)}</span><span class="gh-suggest">${escapeHtml(match.slice(val.length))}</span>`;
+      input.dataset.ghostFull = match;
+    } else {
+      ghost.innerHTML = '';
+      delete input.dataset.ghostFull;
+    }
+  }
+
+  input.addEventListener('input', update);
+  input.addEventListener('keydown', e=>{
+    if((e.key === 'Tab' || e.key === 'ArrowRight') && input.dataset.ghostFull){
+      const atEnd = input.selectionStart === input.value.length;
+      if(atEnd){
+        e.preventDefault();
+        input.value = input.dataset.ghostFull;
+        delete input.dataset.ghostFull;
+        ghost.innerHTML = '';
+      }
+    }
+    if(e.key === 'Escape'){
+      ghost.innerHTML = '';
+      delete input.dataset.ghostFull;
+    }
+  });
+  input.addEventListener('blur', ()=>{ ghost.innerHTML = ''; });
+}
+
+// Testing Labs — suggest from the lab dataset itself
+setupAutofill('labStandard', 'labStandardGhost', () => {
+  const set = new Set();
+  LAB_DB.forEach(l => { l.standards.forEach(s=>set.add(s)); l.categories.forEach(c=>set.add(c)); });
+  return [...set];
+});
+setupAutofill('labLocation', 'labLocationGhost', () => {
+  const set = new Set();
+  LAB_DB.forEach(l => { set.add(l.city); set.add(l.state); });
+  return [...set];
+});
+
+// Find Standards — suggest common product phrases
+setupAutofill('stdInput', 'stdInputGhost', () => window.KB_SUGGEST || []);
+
+// Manufacturing Guide — suggest the demo product names
+setupAutofill('mfgInput', 'mfgInputGhost', () => Object.values(MFG_PRODUCTS).map(p => p.name));
+</script>
+<script>
+/* ===================== BIS KNOWLEDGE BASE (compiled from public BIS scheme/QCO pages) ===================== */
+const KB_CATS=[
+{id:'cem',name:'Cement & construction',ex:'OPC, Portland Pozzolana, Masonry, High Alumina Cement',infra:['Raw-material & clinker quality control','In-house chemical/physical cement lab','Batch-wise sampling and record system'],mach:['Kiln / grinding mill (or bulk blending unit)','Packing machine with weighing','Lab: compressive-strength & Vicat apparatus'],labs:['NCCBM — Ballabgarh, Haryana','National Test House — Ghaziabad']},
+{id:'ele',name:'Electrical products',ex:'Irons, immersion heaters, switches, cables, fans',infra:['Electrical safety test set-up (HV, insulation, leakage)','Component traceability & incoming inspection'],mach:['Assembly line','Insulation resistance / HV tester','Temperature-rise measurement set-up'],labs:['National Test House — Ghaziabad / Kolkata / Mumbai','ERTL (West/East) — regional electrical labs']},
+{id:'hh',name:'Household appliances',ex:'Vacuum cleaners, mixers, ovens, dishwashers, cooking appliances',infra:['Electrical & mechanical safety testing access','Routine test records per batch'],mach:['Assembly & wiring line','Earth-continuity / HV tester','Injection moulding for housings'],labs:['National Test House — Ghaziabad','Central Electrical Testing Lab — Bengaluru']},
+{id:'eit',name:'Electronics & IT',ex:'Mobile phones, laptops/tablets, TVs, power adapters, power banks, cameras',infra:['Product safety test report from BIS-recognised lab','Model/series & brand documentation'],mach:['SMT/PCB assembly line','Functional & burn-in test stations'],labs:['STQC ETDC — Bengaluru / Hyderabad / Chennai / Delhi','BIS-recognised CRS labs (see BIS lab directory)']},
+{id:'aut',name:'Automotive',ex:'Tyres, tubes, LPG automotive components, wheel rims, helmets',infra:['Controlled moulding/vulcanising or shell-forming area','Batch traceability'],mach:['Tyre building & curing press / shell moulding press','Dynamometer / impact-test rig (or lab access)'],labs:['ARAI — Pune','ICAT — Manesar','National Test House']},
+{id:'gas',name:'Gas & pressure equipment',ex:'LPG cylinders, gas valves, regulators',infra:['Hydrostatic / pneumatic pressure test bay','Leak-test facility and calibration records'],mach:['Deep-drawing & welding line (cylinders)','Hydro-test rig','Valve machining & leak-test bench'],labs:['National Test House — Ghaziabad','PESO-approved test facilities']},
+{id:'fod',name:'Food & water',ex:'Packaged drinking water, natural mineral water, related food standards',infra:['Hygienic processing area (GMP/GHP)','Microbiology + chemical lab','FSSAI licence in addition to any BIS mark'],mach:['Filtration / ozonation & filling line','Capping & batch-coding unit'],labs:['CFTRI — Mysuru','FSSAI/NABL-accredited food labs']},
+{id:'toy',name:'Toys',ex:'Toys for children — mechanical, flammability, chemical safety',infra:['Chemical (migration of elements) test access','Incoming-material control for paints/plastics'],mach:['Injection moulding / stitching lines','Small-parts & torque/tension test gauges'],labs:['National Test House — Ghaziabad','CIPET — Chennai / Hyderabad']},
+{id:'stl',name:'Steel & metal products',ex:'TMT bars, structural steel, pipes, galvanised sheets',infra:['Chemical (spectro) & tensile-test lab','Heat/lot traceability'],mach:['Rolling mill / tube mill','Universal testing machine, spectrometer'],labs:['CSIR-NML — Jamshedpur','SAIL RDCIS — Ranchi']},
+{id:'chm',name:'Chemicals',ex:'Caustic soda, soda ash, acids and polymers covered by QCOs',infra:['Analytical lab with calibrated instruments','Safe storage and effluent handling'],mach:['Process plant / reactors','Titration, GC/ICP analytical set-up'],labs:['CSIR-IICT — Hyderabad','NABL-accredited chemical labs']},
+{id:'tex',name:'Textiles',ex:'Cotton bales and notified technical textiles',infra:['Fibre/fabric testing lab','Lot-wise grading records'],mach:['Ginning / press (bales) or weaving lines','Tensile & GSM testers'],labs:['SITRA — Coimbatore','Textiles Committee labs']},
+{id:'ftw',name:'Footwear',ex:'Leather, canvas, rubber, PVC, sports and safety footwear',infra:['Physical test lab for sole bond, flex, abrasion','Material lot control'],mach:['Lasting / moulding & vulcanising line','Flex, abrasion & peel-strength testers'],labs:['CLRI — Chennai','CFTI — Agra / Chennai']},
+{id:'pls',name:'Plastics & rubber',ex:'Plastic products, rubber products, pipes, containers',infra:['Material traceability (virgin/recycled)','Dimension & pressure test access'],mach:['Injection / blow / extrusion moulding','Pipe extrusion line & hydro-test rig'],labs:['CIPET — Chennai / Hyderabad / Ahmedabad','National Test House']},
+{id:'med',name:'Medical / health products',ex:'Surgical gloves, thermometers, masks and related items',infra:['Clean/controlled production area','Sterility or leak-test capability where applicable'],mach:['Dipping / moulding line (gloves)','Calibration bath (thermometers)'],labs:['Shriram Institute — Delhi','NABL-accredited medical device labs']},
+{id:'hgd',name:'Household goods',ex:'Cookware, utensils, containers and consumer products',infra:['Material-grade verification','Basic dimensional & safety tests'],mach:['Press / spinning / welding line','Surface-finishing unit'],labs:['National Test House','NABL-accredited labs']},
+{id:'jwl',name:'Jewellery & hallmarking',ex:'Gold & silver jewellery, HUID',infra:['BIS registration as jeweller','Secure article handling'],mach:['Not manufacturing-centred (assay & marking route)'],labs:['BIS-recognised Assaying & Hallmarking Centres']}];
+/* cat|id|name|keys|code|title|status(M/C/V)|scheme(I/II/H)|tests|note */
+const KB_RAW=`cem|c1|Ordinary Portland Cement (33/43/53)|opc,ordinary portland,portland cement,cement|IS 269:2015 / IS 8112:2013 / IS 12269:2013|Ordinary Portland Cement, 33 / 43 / 53 grade|M|I|Fineness;Setting time;Soundness;Compressive strength;Chemical analysis|Covered by the Cement (Quality Control) Order, 2003.
+cem|c2|Portland Pozzolana Cement|ppc,pozzolana,fly ash cement|IS 1489 (Part 1):2015|PPC — Part 1 fly-ash based (Part 2: calcined clay)|M|I|Fineness;Setting time;Compressive strength;Soundness|Mandatory under the Cement QCO.
+cem|c3|Portland Slag Cement|psc,slag cement|IS 455:2015|Portland Slag Cement|M|I|Fineness;Setting time;Compressive strength;Slag content|Mandatory under the Cement QCO.
+cem|c4|Masonry Cement|masonry cement,mortar cement|IS 3466:1988|Masonry cement|M|I|Fineness;Setting time;Water retention;Compressive strength|Used for mortar/plaster, not structural concrete.
+cem|c5|High Alumina Cement|high alumina,calcium aluminate,refractory cement|IS 6452:1989|High alumina cement for structural use|M|I|Alumina content;Setting time;Compressive strength|Listed in the Cement QCO.
+cem|c6|Special cements (white, sulphate-resisting, rapid-hardening, low-heat, oil-well)|white cement,sulphate resisting,rapid hardening,low heat,oil well|IS 8042 / IS 12330 / IS 8041 / IS 12600 / IS 8229|Special-purpose Portland cements|M|I|Whiteness / chemical limits;Setting time;Strength|Each variety has its own IS.
+ele|e1|Electric iron|electric iron,steam iron,iron box|IS 302 (Part 2/Sec 3)|Safety of electric irons|M|I|Insulation resistance;Leakage current;Temperature rise;Abnormal operation;Mechanical strength|
+ele|e2|Immersion water heater|immersion heater,immersion rod,water heater rod|IS 368|Electric immersion water heaters|M|I|Insulation resistance;Leakage current;Temperature rise;Heating-element safety|Verify current IS revision on bis.gov.in.
+ele|e3|Switches & sockets|switch,socket,modular switch,plug|IS 3854:1997|Switches for domestic and similar purposes|M|I|Temperature rise;Breaking capacity;Endurance;Insulation|
+ele|e4|Electric cables & wires (PVC/XLPE)|cable,wire,pvc cable,house wire,xlpe|IS 694:2010 / IS 1554 (Part 1)|PVC insulated cables and wires|M|I|Conductor resistance;Insulation resistance;Voltage test;Tensile & elongation|
+ele|e5|Electric fans & regulators|fan,ceiling fan,table fan,exhaust fan,regulator|IS 374:2019|Electric ceiling-type fans and regulators|M|I|Air delivery;Electrical safety;Temperature rise;Noise & vibration|
+ele|e6|Circuit breakers (MCB / RCCB)|mcb,rccb,circuit breaker,breaker|IS/IEC 60898-1 / IS 12640 (Part 1)|Circuit breakers for household installations|M|I|Tripping characteristics;Breaking capacity;Endurance;Dielectric|
+ele|e7|LED lamps & luminaires|led lamp,led bulb,led light,luminaire,street light|IS 16102 (Part 1)|Self-ballasted LED lamps for general lighting|M|II|Safety;Photometric performance;Lumen maintenance|Under the Compulsory Registration Scheme.
+hh|h1|Vacuum cleaner|vacuum cleaner,vacuum|IS 302 (Part 2/Sec 2)|Safety of vacuum cleaners|C|I|Electrical safety;Temperature rise;Mechanical strength;Leakage current|Listed by BIS; confirm whether a QCO currently applies.
+hh|h2|Mixer / grinder|mixer,grinder,food mixer,juicer,mixie|IS 4250 / IS 302 (Part 2/Sec 14)|Electric food mixers and kitchen machines|C|I|Electrical safety;Temperature rise;Mechanical strength;Abnormal operation|Listed by BIS; confirm current QCO status.
+hh|h3|Microwave oven|microwave oven,microwave|IS 302 (Part 2/Sec 25)|Safety of microwave ovens|M|II|Microwave leakage;Electrical safety;Temperature rise|Under the Compulsory Registration Scheme.
+hh|h4|Dishwasher|dishwasher|IS 302 (Part 2/Sec 5)|Safety of dishwashers|C|I|Electrical safety;Water-ingress;Mechanical strength|Confirm current QCO status.
+hh|h5|Electric cooking appliances (oven, toaster, grill, hot plate)|oven,toaster,grill,hot plate,cooking range,induction|IS 302 (Part 2/Sec 9) / Sec 6|Electric cooking ranges, ovens, toasters and grills|C|I|Electrical safety;Temperature rise;Abnormal operation|Confirm current QCO status.
+hh|kettle|Electric kettle|electric kettle,kettle|IS 302 (Part 2/Sec 15)|Safety of electric kettles|M|I|Insulation resistance and leakage current;Temperature rise;Mechanical strength and stability;Dry-boil protection|
+hh|h6|Storage water heater (geyser)|geyser,storage water heater,water heater|IS 302 (Part 2/Sec 21)|Safety of storage water heaters|M|I|Electrical safety;Pressure test;Temperature rise;Thermostat|
+hh|h7|Domestic gas stove|gas stove,lpg stove,cooktop,gas burner|IS 4246:2002|Domestic gas stoves for use with LPG|M|I|Gas-tightness;Thermal efficiency;Burner stability;Flame safety|
+eit|i1|Laptop / notebook / tablet|laptop,notebook,tablet,computer|IS 13252 (Part 1):2010|Information technology equipment — safety|M|II|Electrical safety;Temperature rise;Battery & adapter safety|Registration is by self-declaration, valid 2 years; IS 62368-1 is transitioning in.
+eit|i2|Mobile phones|mobile phone,mobile,smartphone,handset,phone|IS 13252 (Part 1) / IS 16333 (Part 3)|Safety + Indian-language support for mobile handsets|M|II|Safety;Battery (IS 16046);Indian-language support|Under the Electronics & IT Goods (Compulsory Registration) Order.
+eit|i3|Television & monitors|television,tv,led tv,monitor,display|IS 616 (audio/video safety)|Audio, video & similar apparatus — safety|M|II|Electrical safety;Temperature rise;Mechanical strength|Listed for TVs/monitors of 32 inch and above.
+eit|i4|Power adapters & chargers|power adapter,charger,adaptor,usb charger|IS 13252 (Part 1)|Power adapters for IT and AV equipment|M|II|Electrical safety;Insulation;Temperature rise|
+eit|i5|Power banks|power bank,powerbank|IS 16046 (Part 2)|Lithium cells/batteries for portable applications|M|II|Cell safety;Short-circuit;Overcharge;Thermal abuse|
+eit|i6|Digital cameras|digital camera,camera,cctv,webcam|IS 13252 (Part 1)|Digital still-image cameras / CCTV|M|II|Electrical safety;Temperature rise|CCTV also needs STQC essential-requirement testing.
+eit|i7|Smart watches, headphones & printers|smart watch,smartwatch,headphone,earphone,printer,scanner|IS 13252 (Part 1) / IS 616|Wearables, wireless audio and IT peripherals|M|II|Electrical safety;Battery safety|
+aut|a1|Car tyres (passenger)|car tyre,passenger tyre,tyre,tire|IS 15633|Pneumatic tyres for passenger cars — diagonal & radial|M|I|Dimensions;Strength;Endurance;High-speed;Bead unseating|
+aut|a2|Two / three-wheeler tyres|two wheeler tyre,bike tyre,scooter tyre,auto rickshaw tyre|IS 15627|Pneumatic tyres for two and three-wheeled vehicles|M|I|Dimensions;Strength;Endurance;Load-speed|
+aut|a3|Commercial vehicle tyres|truck tyre,bus tyre,commercial tyre|IS 15636|Pneumatic tyres for commercial vehicles|M|I|Dimensions;Strength;Endurance;Load-speed|
+aut|a4|Tyre tubes|tube,inner tube|IS 13098|Tubes for pneumatic tyres|M|I|Dimensions;Tensile;Ageing;Air-tightness|
+aut|a5|Automotive LPG containers & components|automotive lpg,lpg kit,auto lpg|IS 14899|LPG containers for automotive use|M|I|Hydrostatic test;Burst;Leak;Valve function|
+aut|a6|Wheel rims|wheel rim,alloy wheel,rim|See BIS Scheme-I list (Automobile accessories)|Automotive wheel rims|C|I|Dimensional;Radial fatigue;Impact|Check the current QCO/IS on bis.gov.in.
+aut|helmet|Helmet (two-wheeler riders)|helmet,safety helmet,motorcycle helmet|IS 4151:2015|Protective helmets for two-wheeler riders|M|I|Impact absorption;Penetration resistance;Retention-system strength|
+gas|g1|LPG cylinders|lpg cylinder,gas cylinder,cylinder|IS 3196 (Part 1)|Welded low-carbon steel cylinders for LPG|M|I|Hydrostatic;Burst;Radiography;Drop|
+gas|g2|LPG valves (cylinder valves)|gas valve,lpg valve,cylinder valve,valve|IS 8737|Valves for LPG cylinders|M|I|Leak tightness;Torque;Endurance|
+gas|g3|LPG regulators|regulator,lpg regulator,gas regulator|IS 9798|Pressure regulators for LPG cylinders|M|I|Outlet pressure;Leak;Flow rate|
+gas|g4|LPG rubber tubing|lpg tube,rubber tubing,gas pipe|IS 9573|Rubber tubing for LPG use|M|I|Dimensions;Hydraulic;Ageing;Flexibility|Check current revision.
+gas|g5|Oil pressure stoves|oil pressure stove,kerosene stove,pressure stove|IS 10109 / IS 2787 / IS 1342|Oil pressure stoves|M|I|Leak;Burner performance;Safety|Covered by the Oil Pressure Stoves (QC) Order, 1997.
+fod|f1|Packaged drinking water|packaged drinking water,drinking water,bisleri,water bottle bis|IS 14543:2016|Packaged drinking water (other than natural mineral water)|V|I|Physical;Chemical;Microbiological|De-notified from compulsory BIS certification (FSSAI now regulates); ISI mark is voluntary.
+fod|f2|Packaged natural mineral water|mineral water,natural mineral water|IS 13428:2005|Packaged natural mineral water|V|I|Physical;Chemical;Microbiological|De-notified from compulsory BIS certification; FSSAI licence required.
+fod|f3|Hexane, food grade|hexane|IS 3470|Hexane, food grade|M|I|Purity;Boiling range;Residue|Solvent Extracted Oil QC Order.
+fod|f4|Plastic & glass feeding bottles|feeding bottle,baby bottle,sipper|IS 14625 / IS 5168|Plastic and glass feeding bottles|M|I|Material safety;Heat resistance;Dimensions|Infant Milk Substitutes, Feeding Bottles Act 1992.
+toy|t1|Toys (general)|toy,toys,kids toy,plastic toy,soft toy,plush|IS 9873 (Part 1):2019|Safety of toys — mechanical & physical properties|M|I|Mechanical & physical (Part 1);Flammability (Part 2);Migration of elements (Part 3)|Toys (Quality Control) Order, 2020 — applies to toys for children under 14.
+toy|t2|Electric toys|electric toy,battery toy,remote control toy|IS 15644:2006|Safety of electric toys|M|I|Electrical safety;Temperature;Battery compartment|
+stl|s1|TMT / reinforcement bars|tmt,steel bar,rebar,reinforcement bar,fe500|IS 1786:2008|High-strength deformed steel bars for reinforcement|M|I|Tensile;Bend / rebend;Chemical analysis;Rib geometry|
+stl|s2|Structural steel|structural steel,steel section,angle,channel,beam|IS 2062:2011|Hot-rolled structural steel|M|I|Tensile;Impact;Chemical analysis|
+stl|s3|Steel pipes & tubes|steel pipe,gi pipe,tube|IS 1239 (Part 1) / IS 3589|Steel tubes for water and general use|C|I|Dimensions;Hydro test;Flattening;Zinc coating|Confirm current QCO status.
+stl|s4|Galvanised steel sheets|galvanised sheet,gi sheet,roofing sheet|IS 277|Galvanised steel sheets and coils|M|I|Coating mass;Bend;Tensile|
+chm|ch1|Caustic soda|caustic soda,sodium hydroxide|IS 252|Caustic soda|M|I|Assay (NaOH);Sodium carbonate;Chloride|Chemicals QCOs.
+chm|ch2|Soda ash|soda ash,sodium carbonate|IS 251|Sodium carbonate (soda ash)|M|I|Total alkali;Chloride;Bulk density|
+chm|ch3|Acids (nitric, hydrochloric)|nitric acid,hydrochloric acid,acid|IS 264 / IS 265|Nitric and hydrochloric acid|C|I|Assay;Impurities;Residue|Confirm current QCO status.
+chm|ch4|Polymers (polyethylene, polypropylene)|polyethylene,polypropylene,polymer,hdpe granules|IS 7328 / IS 10951|Polyethylene / polypropylene materials|M|I|Melt-flow index;Density;Tensile|Petrochemicals QCOs.
+tex|x1|Cotton bales|cotton bale,cotton,bale|Cotton Bales (Quality Control) Order — see BIS notification|Cotton bales (raw cotton)|M|I|Staple length;Micronaire;Trash content|Check gazette for the applicable IS.
+tex|x2|Technical textiles (geo, agro, protective)|technical textile,geotextile,agrotextile,fabric|See Technical Textiles QCO|Notified technical textiles|C|I|GSM;Tensile;UV resistance|Check the QCO for your fabric type.
+ftw|fo1|Leather safety footwear|leather safety shoe,safety boot,safety shoe|IS 1989 (Part 1) / (Part 2):1986|Leather safety boots and shoes|M|I|Toe-cap impact;Sole bond;Flex;Abrasion|Footwear QCO — check MSME exemptions.
+ftw|fo2|Canvas shoes (rubber sole)|canvas shoe,canvas boot,school shoe|IS 3735:1996 / IS 3736:1995|Canvas shoes and boots, rubber sole|M|I|Sole bond;Flex;Abrasion|
+ftw|fo3|Sports footwear|sports shoe,sports footwear,sneaker,running shoe|IS 15844 (Part 1):2023|Sports footwear — general purpose|M|I|Sole bond;Abrasion;Flex;Slip|QCO in force since 1 July 2023.
+ftw|fo4|Hawai chappal & sandals|hawai chappal,chappal,slipper,sandal,flip flop|IS 10702:2023 / IS 6721:2023|Rubber hawai chappal; sandals and slippers|M|I|Dimensions;Abrasion;Tensile|
+ftw|fo5|PPE / protective footwear|ppe footwear,protective footwear,occupational footwear|IS 15298 (Part 2)|Personal protective equipment — safety footwear|M|I|Toe-cap impact;Compression;Penetration|PPE Footwear QCO since 1 Jan 2022.
+pls|bottle|Plastic water bottle|plastic bottle,water bottle,water can,pet bottle|IS 15410:2020|Plastic containers for drinking water|M|I|Migration / leaching;Capacity & dimensions;Drop and load resistance|
+pls|bucket|Plastic bucket|bucket,plastic bucket,mug,plastic container,household plastic|IS 12235 (Part 6):2004|Household plastic ware|V|I|Load and drop test;Dimensions & capacity|
+pls|p1|PVC pipes|pvc pipe,upvc pipe,pipe|IS 4985:2021|Unplasticised PVC pipes for water supply|M|I|Dimensions;Hydrostatic;Impact;Vicat softening|
+pls|p2|HDPE pipes|hdpe pipe,polyethylene pipe|IS 4984:2016|HDPE pipes for water supply|M|I|Dimensions;Hydrostatic;Melt-flow;Density|
+pls|p3|Plastic water storage tanks|water tank,storage tank,sintex,plastic tank|IS 12701:1996|Rotational-moulded polyethylene tanks|M|I|Dimensions;Impact;Density;Environmental stress cracking|
+med|m1|Surgical / examination gloves|surgical gloves,gloves,examination gloves,latex gloves|IS 4148 / IS 13422|Rubber surgical and examination gloves|C|I|Dimensions;Tensile;Watertightness;Powder content|Medical devices may also need CDSCO approval.
+med|m2|Clinical thermometers|thermometer,clinical thermometer,mercury thermometer|IS 3055|Clinical thermometers|C|I|Accuracy;Scale;Constriction|Check current IS and CDSCO rules.
+med|m3|Face masks & respirators|mask,face mask,respirator,n95|IS 9473 (respirators)|Filtering half-mask respiratory devices|C|I|Filtration efficiency;Breathing resistance;Fit|
+hgd|k1|Pressure cooker|pressure cooker,cooker|IS 2347:2017|Aluminium pressure cookers|M|I|Safety valve;Hydrostatic;Gasket;Capacity|Domestic Pressure Cookers QCO.
+hgd|k2|Stainless steel utensils & cookware|steel utensil,stainless steel,utensil,cookware,tiffin,steel bottle|IS 14756|Stainless steel utensils|C|I|Material grade;Thickness;Corrosion;Dimensions|Confirm current QCO status.
+hgd|k3|Aluminium utensils & cookware|aluminium utensil,aluminum cookware,kadai,non stick|IS 1660|Aluminium and aluminium-alloy utensils|C|I|Composition;Thickness;Handle strength|Confirm current QCO status.
+jwl|jewellery|Gold jewellery|jewellery,jewelry,gold,ornament,huid,hallmark|IS 1417 (Hallmarking)|Hallmarking of gold jewellery / artefacts|M|H|Purity / fineness assay;HUID marking verification|Mandatory HUID hallmarking applies in notified districts.
+jwl|j2|Silver jewellery|silver,silver jewellery,silver article|IS 2112|Silver jewellery / artefacts hallmarking|V|H|Fineness assay;HUID marking|Silver hallmarking is voluntary — verify current status.`;
+const KB_ITEMS=KB_RAW.split('\n').map(l=>{const p=l.split('|');return{cat:p[0],id:p[1],name:p[2],keys:p[3].split(','),code:p[4],title:p[5],st:p[6],sch:p[7],tests:p[8].split(';'),note:p[9]||''};});
+const KB_BY_ID={};KB_ITEMS.forEach(i=>KB_BY_ID[i.id]=i);
+const KB_CAT_BY_ID={};KB_CATS.forEach(c=>KB_CAT_BY_ID[c.id]=c);
+const ST_LABEL={M:'Mandatory',C:'Check current QCO',V:'Voluntary'};
+const ST_BADGE={M:'bad',C:'warn',V:'ok'};
+const ROUTE={I:'Product Certification Scheme (ISI Mark) — Scheme I',II:'Compulsory Registration Scheme (CRS) — Scheme II, self-declaration',H:'Hallmarking Scheme (HUID)'};
+window.KB_SUGGEST=KB_ITEMS.map(i=>i.name);
+const STOP=new Set(['for','the','and','how','can','want','manufacture','make','need','what','which','standard','bis','mark','certification','get','buy','sell','are','with','from','that','this','have','does','apply','applies','required','compliant','india','indian','product']);
+function baseCodes(it){return (it.code.toLowerCase().match(/is\/iec \d+|is \d+/g)||[]);}
+function kbSearch(raw){
+  const q=(raw||'').toLowerCase().trim(); if(!q) return [];
+  const toks=q.split(/[^a-z0-9]+/).filter(t=>t.length>2&&!STOP.has(t));
+  return KB_ITEMS.map(it=>{
+    let s=0;
+    it.keys.forEach(k=>{ if(q.includes(k)) s+=10+k.length; else if(q.length>=3&&k.includes(q)) s+=6; });
+    baseCodes(it).forEach(c=>{ if(new RegExp('\\b'+c.replace(/[()/]/g,'\\$&')+'(?!\\d)').test(q)) s+=14; });
+    toks.forEach(t=>{ if(it.name.toLowerCase().includes(t)) s+=3; if(it.keys.some(k=>k.split(' ').includes(t))) s+=2; if(it.title.toLowerCase().includes(t)) s+=1; });
+    const c=KB_CAT_BY_ID[it.cat]; if(q.length>=4&&c.name.toLowerCase().includes(q)) s+=2;
+    return {it,s};
+  }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).map(x=>Object.assign({score:x.s},x.it));
+}
+function itemLabCode(it){ const b=baseCodes(it)[0]; return b?b.toUpperCase():it.name; }
+
+/* ---------- build Manufacturing-Guide records for every item ---------- */
+function buildMfg(it){
+  const c=KB_CAT_BY_ID[it.cat], I=it.sch==='I', H=it.sch==='H';
+  const nextAction=it.st==='M'?'Mandatory — arrange type testing at a recognised lab early, then apply on BIS Manak Online.':it.st==='C'?'Confirm on the BIS QCO list whether this product is currently notified as mandatory, then choose the Scheme I (ISI) route.':'Certification is voluntary/de-notified — weigh the market value of the ISI mark; other regulators (e.g. FSSAI) may still apply.';
+  if(H) return {name:it.name,standard:{code:it.code,title:it.title,clause:'Fineness grades and marking per the IS'},certificationStatus:it.st==='M'?'Mandatory':'Voluntary',certificationRoute:ROUTE.H,
+    requirements:['Article tested and graded for fineness (purity)','Each article carries BIS logo, purity grade and 6-character HUID','Jeweller must hold BIS registration'],infrastructure:c.infra,machinery:c.mach,testing:it.tests,labs:c.labs,
+    documents:['Jeweller BIS registration certificate','Article-wise purity declaration','Assaying centre submission form'],applicationSteps:['Register as a jeweller on the BIS portal','Submit articles to a BIS-recognised Assaying & Hallmarking Centre','Receive HUID-marked articles back for sale'],
+    assessment:'Each lot is assayed at the centre; no factory inspection is involved.',marking:'Approved articles receive the BIS hallmark, purity grade and HUID.',postLicence:['Keep registration current','Sell only HUID-marked articles','Cooperate with BIS surveillance checks'],nextAction};
+  return {name:it.name,standard:{code:it.code,title:it.title,clause:it.note||'See the full IS for clause-level requirements'},
+    certificationStatus:it.st==='M'?'Mandatory':'Voluntary',certificationRoute:ROUTE[it.sch],
+    requirements:['Product must conform to '+it.code,'Key tests: '+it.tests.slice(0,4).join(', '),'Marking: Standard Mark, brand/manufacturer and batch/model details as required by the IS'].concat(it.note?[it.note]:[]),
+    infrastructure:c.infra,machinery:c.mach,testing:it.tests,labs:c.labs,
+    documents:I?['Application and fee payment proof (BIS Manak Online)','Factory layout, machinery and test-equipment list','Quality control plan / manual','Test report from a BIS-recognised lab (simplified route)','Business registration (GST / Udyam) and premises proof']:['Test report from a BIS-recognised lab','Declaration of conformity','Brand, model and series details','Authorised Indian Representative (foreign manufacturers)','Company / factory details'],
+    applicationSteps:I?['Create an account on BIS Manak Online and select Scheme I','Choose the Indian Standard, enter factory & QC details, upload documents','Pay the application fee online and track status']:['Register on the BIS portal under the Compulsory Registration Scheme','Upload the lab test report and declaration of conformity','Pay the fee; registration is granted with an R-number'],
+    assessment:I?'BIS officer inspects the factory and in-house testing; a verification sample is drawn and tested independently.':'CRS runs on self-declaration backed by a lab test report — no routine factory inspection, but BIS may draw market samples.',
+    marking:I?'On grant of licence, use the ISI Standard Mark strictly per licence conditions.':'Display the Standard Mark with the R-number and CRS logo on the product/packing.',
+    postLicence:I?['Maintain batch test records for surveillance audits','Renew the licence before expiry','Inform BIS of material/process changes']:['Renew registration (valid 2 years) on time','Keep test records for market surveillance','Re-register on any change of standard or design'],nextAction};
+}
+KB_ITEMS.forEach(it=>{ if(MFG_PRODUCTS[it.id]){ MFG_PRODUCTS[it.id].labs=KB_CAT_BY_ID[it.cat].labs; } else MFG_PRODUCTS[it.id]=buildMfg(it); });
+KB_ITEMS.forEach(it=>{ MFG_KEYS[it.id]=it.keys.concat([it.name.toLowerCase()]); });
+MFG_PRODUCTS.bottle.standard.title='Plastic containers for drinking water';
+
+/* ---------- labs (indicative, public institutions) ---------- */
+[[0,['ele','hh','aut']],[1,['hh','ele','pls']],[2,['ele','eit','aut','hh','toy','gas']],[3,['pls','hgd','fod']],[4,['jwl']],[5,['aut','ele']]].forEach(a=>LAB_DB[a[0]].catIds=a[1]);
+[
+['NCCBM — Ballabgarh','Ballabgarh','Haryana',['Cement','Construction materials'],['IS 269','IS 1489','IS 455','IS 8112'],['cem']],
+['National Test House','Ghaziabad','Uttar Pradesh',['Electrical, toys, gas equipment','Cement & building materials'],['IS 302','IS 3196','IS 9873','IS 374'],['ele','hh','toy','gas','cem','pls','hgd']],
+['National Test House','Kolkata','West Bengal',['Electrical & mechanical testing'],['IS 302','IS 694','IS 3854'],['ele','hh','stl']],
+['STQC ETDC','Bengaluru','Karnataka',['Electronics & IT (CRS)'],['IS 13252','IS 616','IS 16046'],['eit','ele']],
+['STQC ETDC','Hyderabad','Telangana',['Electronics & IT (CRS)'],['IS 13252','IS 616','IS 16102'],['eit','ele']],
+['STQC ETDC','Chennai','Tamil Nadu',['Electronics & IT (CRS)'],['IS 13252','IS 616'],['eit']],
+['CIPET','Chennai','Tamil Nadu',['Plastics, pipes, rubber'],['IS 4985','IS 4984','IS 12701','IS 15410'],['pls','toy','hgd']],
+['CIPET','Hyderabad','Telangana',['Plastics, pipes, rubber'],['IS 4985','IS 4984','IS 9873'],['pls','toy']],
+['ARAI','Pune','Maharashtra',['Automotive components, tyres'],['IS 15633','IS 15627','IS 15636','IS 4151','IS 13098'],['aut']],
+['CLRI','Chennai','Tamil Nadu',['Leather & footwear'],['IS 1989','IS 3735','IS 15844','IS 15298'],['ftw']],
+['CSIR-NML','Jamshedpur','Jharkhand',['Steel & metals'],['IS 1786','IS 2062','IS 277','IS 1239'],['stl','hgd']],
+['CFTRI','Mysuru','Karnataka',['Food & packaged water'],['IS 14543','IS 13428','IS 3470'],['fod']],
+['SITRA','Coimbatore','Tamil Nadu',['Textiles & technical textiles'],['Cotton bales','Technical textiles'],['tex']],
+['CSIR-IICT','Hyderabad','Telangana',['Chemicals'],['IS 252','IS 251','IS 264'],['chm']],
+['Shriram Institute for Industrial Research','New Delhi','Delhi',['Medical & rubber products'],['IS 4148','IS 13422','IS 3055'],['med','pls']],
+['Assaying & Hallmarking Centre','Hyderabad','Telangana',['Jewellery','Hallmarking / purity assay'],['IS 1417','IS 2112','Hallmarking'],['jwl']]
+].forEach(a=>{LAB_DB.push({name:a[0],city:a[1],state:a[2],categories:a[3],standards:a[4],catIds:a[5]});});
+LAB_DB.forEach(l=>{[...l.categories,l.city,l.state].forEach(p=>p.split(/[^a-zA-Z]+/).forEach(w=>{w=w.toLowerCase();if(w.length>=4&&!WORD_VOCAB.includes(w))WORD_VOCAB.push(w);}));});
+['part','sec'].forEach(w=>WORD_VOCAB.push(w));
+function kbCatsFor(q){const s=new Set();kbSearch(q).slice(0,6).forEach(i=>s.add(i.cat));KB_CATS.forEach(c=>{if(q.length>=4&&c.name.toLowerCase().includes(q))s.add(c.id);});return [...s];}
+function labMatches(l,stdQ,locQ){
+  const stdOk=!stdQ||l.standards.some(s=>s.toLowerCase().includes(stdQ)||stdQ.includes(s.toLowerCase()))||l.categories.some(c=>c.toLowerCase().includes(stdQ))||(l.catIds&&kbCatsFor(stdQ).some(c=>l.catIds.includes(c)));
+  const locOk=!locQ||l.city.toLowerCase().includes(locQ)||l.state.toLowerCase().includes(locQ);
+  return stdOk&&locOk;
+}
+function openLabsFor(id){const it=KB_BY_ID[id];document.getElementById('labStandard').value=itemLabCode(it);document.getElementById('labLocation').value='';go('labs');renderLabs();}
+function continueToLabs(){ if(currentMfgProduct) openLabsFor(currentMfgProduct); else {go('labs');renderLabs();} }
+
+/* ---------- Find Standards ---------- */
+function stdCard(it){
+  const c=KB_CAT_BY_ID[it.cat];
+  return `<div class="card" style="margin-bottom:10px;background:#FCFBF6;"><span class="badge ${ST_BADGE[it.st]}">${ST_LABEL[it.st]}</span> <span class="muted" style="font-size:11.5px;">${c.name}</span>
+  <p style="margin:0 0 4px;font-size:16px;font-weight:700;">${it.name}</p><p style="margin:0 0 6px;font-size:14px;font-weight:600;color:var(--green-dark);">${it.code}</p>
+  <p style="margin:0 0 8px;font-size:13px;color:var(--ink-soft);">${it.title}. ${it.note}</p>
+  <div class="citation"><b>Route:</b> ${ROUTE[it.sch]}<br><b>Typical tests:</b> ${it.tests.join(', ')}</div>
+  <div class="row" style="margin-top:10px;"><button class="chip" onclick="openRoadmap('${it.id}')">Compliance roadmap</button><button class="chip" onclick="openCert('${it.id}')">Certification guide</button><button class="chip" onclick="openLabsFor('${it.id}')">Find labs</button><button class="chip" onclick="askAbout('${it.id}')">Ask Saarthi</button></div></div>`;
+}
+function lookupStandard(){
+  const raw=document.getElementById('stdInput').value.trim(), box=document.getElementById('stdResult');
+  if(!raw){box.innerHTML='<p class="muted" style="font-style:italic;">Type a product description first.</p>';return;}
+  const res=kbSearch(raw).slice(0,4);
+  if(!res.length){box.innerHTML=`<span class="badge warn">No exact match</span><p style="font-size:13px;color:var(--ink-soft);margin:0 0 10px;">Nothing matched “${escapeHtml(raw)}”. Try a simpler product name, an IS number, or browse a category below — or ask Saarthi.</p><button class="chip" onclick="askAbout(null,'${escapeHtml(raw).replace(/'/g,'')}')">Ask Saarthi about this</button>`;return;}
+  box.innerHTML=`<span class="badge ok">${res.length} match${res.length>1?'es':''} found</span>`+res.map(stdCard).join('')+'<p class="muted" style="font-size:11.5px;">Always confirm the latest IS revision and QCO status on bis.gov.in.</p>';
+}
+function browseCat(id){const c=KB_CAT_BY_ID[id];document.getElementById('catList').innerHTML=`<p class="muted" style="margin:12px 0 8px;"><b>${c.name}</b> — ${c.ex}</p>`+KB_ITEMS.filter(i=>i.cat===id).map(i=>`<div class="lab-item"><div><b>${i.name}</b><div class="loc">${i.code} · ${ST_LABEL[i.st]}</div></div><button class="chip" onclick="quickStandard('${i.name.replace(/'/g,"\\'")}')">Details</button></div>`).join('');}
+(function(){
+  const card=document.querySelector('#p-standards .card');
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML='<h3>Browse by product category</h3><p class="muted" style="margin-bottom:10px;">Products listed by BIS across '+KB_CATS.length+' categories ('+KB_ITEMS.length+' product entries).</p><div class="row">'+KB_CATS.map(c=>`<button class="chip" onclick="browseCat('${c.id}')">${c.name}</button>`).join('')+'</div><div id="catList"></div>';
+  card.after(d);
+  const home=document.querySelector('#p-home .card:last-child');
+  const h=document.createElement('div');h.className='card';h.innerHTML='<h3>Product categories</h3><div class="row" style="margin-top:10px;">'+KB_CATS.map(c=>`<button class="chip" onclick="go('standards');browseCat('${c.id}')">${c.name}</button>`).join('')+'</div>';
+  home.after(h);
+})();
+function openRoadmap(id){go('mfgguide');document.getElementById('mfgInput').value=MFG_PRODUCTS[id].name;renderMfgRoadmap(id);}
+function askAbout(id,text){go('assistant');document.getElementById('chatInput').value=id?`What do I need to know about BIS certification for ${KB_BY_ID[id].name}?`:'What BIS standard applies to '+text+'?';sendChat();}
+function searchMfg(){
+  const q=document.getElementById('mfgInput').value.trim(); if(!q) return;
+  const r=kbSearch(q);
+  if(r.length){var m0=document.getElementById('mfgMsg');if(m0)m0.innerHTML='';renderMfgRoadmap(r[0].id);return;}
+  let m=document.getElementById('mfgMsg');
+  if(!m){m=document.createElement('div');m.id='mfgMsg';m.style.marginTop='12px';document.getElementById('mfgIntro').appendChild(m);}
+  m.innerHTML='<span class="badge warn">No match</span><p class="muted" style="margin:0;">No roadmap found for “'+escapeHtml(q)+'”. Try a product such as cement, LED lamp, tyre, toy, footwear, TMT bar or LPG cylinder.</p>';
+}
+function quickMfg(id){var m=document.getElementById('mfgMsg');if(m)m.innerHTML='';document.getElementById('mfgInput').value=MFG_PRODUCTS[id].name;renderMfgRoadmap(id);}
+
+/* ---------- Certification ---------- */
+function openCert(id){go('cert');document.getElementById('certProduct').value=id;renderCert();}
+function renderCert(){
+  const it=KB_BY_ID[document.getElementById('certProduct').value]||KB_BY_ID.kettle;
+  const I=it.sch==='I',H=it.sch==='H';
+  const steps=H?CERT_DATA.jewellery.steps:[['Identify applicable standard',it.code+' — '+it.title],
+    ['Get the product tested',I?'Test at a BIS-recognised lab and attach the report (simplified route), or apply first and test during licensing':'Test at a BIS-recognised lab for the applicable IS'],
+    [I?'Apply online':'Register online',I?'Apply on BIS Manak Online with factory details, machinery/QC list and documents':'Apply on the BIS portal with the test report and declaration of conformity'],
+    [I?'Factory inspection':'Registration granted',I?'BIS officer inspects the factory and QC system; a verification sample is drawn':'R-number issued; registration valid for 2 years and renewable'],
+    [I?'Licence & ISI mark':'Label the product',I?'Licence granted; use the Standard Mark only per licence conditions':'Show the Standard Mark with R-number and CRS logo'],
+    ['Stay compliant','Keep test records, renew on time and expect surveillance / market sampling']];
+  document.getElementById('certRoute').textContent='Likely route: '+ROUTE[it.sch]+' · '+ST_LABEL[it.st];
+  document.getElementById('certSteps').innerHTML=steps.map((s,i)=>`<li><div class="step-num">${i+1}</div><div class="step-body"><b>${s[0]}</b><p>${s[1]}</p></div></li>`).join('');
+  let a=document.getElementById('certActions');
+  if(!a){a=document.createElement('div');a.id='certActions';a.className='row';a.style.marginTop='14px';document.getElementById('certSteps').after(a);}
+  a.innerHTML=`<button class="primary" onclick="openRoadmap('${it.id}')">Full compliance roadmap</button><button class="chip" onclick="openLabsFor('${it.id}')">Find testing labs</button>`;
+}
+(function(){const s=document.getElementById('certProduct');s.innerHTML=KB_CATS.map(c=>`<optgroup label="${c.name}">`+KB_ITEMS.filter(i=>i.cat===c.id).map(i=>`<option value="${i.id}">${i.name}</option>`).join('')+'</optgroup>').join('');s.value='kettle';renderCert();})();
+
+/* ---------- Hallmarking ---------- */
+Object.assign(HUID_DB,{'GD9R55':{status:'ok',purity:'22K916',jeweller:'Sample Jewellers, Jaipur'},'HZ4K21':{status:'ok',purity:'18K750',jeweller:'Demo Gold House, Hyderabad'},'7T2Q90':{status:'ok',purity:'14K585',jeweller:'Sample Ornaments, Mumbai'}});
+function verifyHuid(){
+  const q=document.getElementById('huidInput').value.trim().toUpperCase(),box=document.getElementById('huidResult');
+  if(!q){box.innerHTML='<p class="muted" style="font-style:italic;">Enter a HUID first.</p>';return;}
+  if(!/^[A-Z0-9]{6}$/.test(q)){box.innerHTML='<span class="badge warn">Invalid format</span><p class="muted" style="margin:0;">A HUID is exactly 6 letters/digits (e.g. AB12CD). Check the laser marking on the article.</p>';return;}
+  const r=HUID_DB[q];
+  if(r&&r.status==='ok'){box.innerHTML=`<span class="badge ok">Verified (sample record)</span><p style="margin:0;font-size:13.5px;"><b>${r.purity}</b> · registered to ${r.jeweller}</p>`;toast('✓ HUID verified');}
+  else{box.innerHTML=`<span class="badge bad">Not in sample records</span><p style="margin:0;font-size:13px;color:var(--ink-soft);">This offline sample set has no record for <b>${q}</b>. For a real check use the <b>BIS Care</b> app (Verify HUID) or bis.gov.in. If the HUID fails there, do not buy and file a complaint.</p>`;toast('HUID not found in samples');}
+}
+(function(){
+  const c=document.querySelector('#p-hallmark .card');
+  c.insertAdjacentHTML('beforeend','<div class="row" style="margin-top:10px;"><button class="chip" onclick="document.getElementById(\'huidInput\').value=\'AB12CD\';verifyHuid()">Try AB12CD</button><button class="chip" onclick="document.getElementById(\'huidInput\').value=\'XY99ZZ\';verifyHuid()">Try XY99ZZ</button><button class="chip" onclick="document.getElementById(\'huidInput\').value=\'12\';verifyHuid()">Try invalid</button></div>');
+  const g=[['24K','999','Pure gold'],['23K','958',''],['22K','916','Most common for jewellery'],['20K','833',''],['18K','750','Studded / fashion jewellery'],['14K','585','Light-weight jewellery']];
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML='<h3>Gold purity grades (IS 1417)</h3><p class="muted" style="margin-bottom:10px;">A hallmark shows the BIS logo, purity grade and the 6-character HUID.</p>'+g.map(x=>`<div class="lab-item" style="margin-bottom:6px;padding:8px 14px;"><b>${x[0]} — ${x[1]}</b><span class="muted">${x[2]}</span></div>`).join('')+'<p class="muted" style="margin-top:8px;">HUID hallmarking of gold jewellery is mandatory in notified districts. Silver hallmarking (IS 2112) — verify current status. Verify any piece with the BIS Care app.</p>';
+  c.after(d);
+})();
+
+/* ---------- Consumer Mode ---------- */
+const LICENCE_DB={'CM/L-1234567':{status:'ok',holder:'Sample Plastics Pvt Ltd, Bengaluru',product:'Plastic water containers',standard:'IS 15410',validTill:'31 Mar 2028'},
+'CM/L-7654321':{status:'expired',holder:'Demo Electricals, Chennai',product:'Electric kettle',standard:'IS 302 (Part 2/Sec 15)',validTill:'12 Jan 2025'},
+'CM/L-2468101':{status:'ok',holder:'Sample Cement Works, Ariyalur',product:'Ordinary Portland Cement',standard:'IS 269',validTill:'30 Sep 2027'},
+'R-41234567':{status:'ok',holder:'Sample Electronics Pvt Ltd, Noida',product:'Laptop / tablet (CRS)',standard:'IS 13252 (Part 1)',validTill:'15 Jun 2027'}};
+function consumerVerify(){
+  const q=document.getElementById('consumerLic').value.trim().toUpperCase(),box=document.getElementById('consumerResult');
+  if(!q){box.innerHTML='<p class="muted" style="font-style:italic;">Enter a licence or registration number first.</p>';return;}
+  const hint=/^(CM\/L-\d{7}|R-\d{8})$/.test(q)?'':'<p class="muted" style="margin:0 0 8px;font-size:12px;">Note: ISI licence numbers look like CM/L-1234567; CRS numbers look like R-41234567.</p>';
+  const rec=LICENCE_DB[q];
+  if(!rec){box.innerHTML=hint+`<span class="badge bad">Not found</span><p class="muted" style="margin:0;">No record for <b>${escapeHtml(q)}</b> in the offline sample set. Check the real number on the BIS Care app or bis.gov.in — if it cannot be verified, treat the product with caution and report it.</p>`;return;}
+  box.innerHTML=hint+`<span class="badge ${rec.status==='ok'?'ok':'warn'}">${rec.status==='ok'?'Active (sample record)':'Licence expired (sample record)'}</span><p style="margin:0 0 4px;font-size:14.5px;font-weight:600;">${rec.holder}</p><p class="muted" style="margin:0;">${rec.product} · ${rec.standard} · ${rec.status==='ok'?'valid till':'expired'} ${rec.validTill}${rec.status==='ok'?'':'. Consider reporting this product.'}</p>`;
+}
+(function(){
+  const c=document.querySelector('#p-consumer .card');
+  c.insertAdjacentHTML('beforeend','<div class="row" style="margin-top:6px;"><button class="chip" onclick="quickConsumer(\'CM/L-7654321\')">Try expired licence</button><button class="chip" onclick="quickConsumer(\'R-41234567\')">Try CRS R-number</button></div>');
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML='<h3>How to check a product yourself</h3><ul class="steps" style="margin-top:8px;"><li><div class="step-num">1</div><div class="step-body"><b>Look for the mark</b><p>ISI mark with licence number (CM/L-…), or the CRS mark with an R-number on electronics; jewellery shows the BIS logo, purity and HUID.</p></div></li><li><div class="step-num">2</div><div class="step-body"><b>Verify on BIS Care</b><p>Use the BIS Care app (or bis.gov.in) to check the licence, registration or HUID.</p></div></li><li><div class="step-num">3</div><div class="step-body"><b>Report a problem</b><p>Use Register Complaint here, or call the National Consumer Helpline (1915 / 1800-11-4000).</p></div></li></ul>';
+  c.after(d);
+})();
+
+/* ---------- Complaints (stored locally + tracker + admin view) ---------- */
+let COMPLAINTS=[];try{COMPLAINTS=JSON.parse(localStorage.getItem('bisComplaints')||'[]');}catch(e){}
+function saveComplaints(){try{localStorage.setItem('bisComplaints',JSON.stringify(COMPLAINTS));}catch(e){}}
+['Unsafe / injury caused by product','Certified product without valid licence','Price / MRP labelling issue with ISI product','Hallmarked jewellery purity doubt'].forEach(t=>{const o=document.createElement('option');o.textContent=t;document.getElementById('compIssue').appendChild(o);});
+function submitComplaint(){
+  const product=document.getElementById('compProduct').value.trim(),issue=document.getElementById('compIssue').value,details=document.getElementById('compDetails').value.trim(),box=document.getElementById('compResult');
+  if(!product){box.innerHTML='<p style="color:#B23A32;font-size:13px;">Enter a product name first.</p>';return;}
+  const code='BIS-'+Math.random().toString(36).slice(2,8).toUpperCase();
+  COMPLAINTS.push({code,product,issue,details,date:new Date().toLocaleString(),status:'Registered'});saveComplaints();
+  box.innerHTML=`<span class="badge ok">Complaint registered</span><p style="margin:0 0 8px;font-size:15px;font-weight:700;">Tracking reference: ${code}</p><div class="citation"><b>Product:</b> ${escapeHtml(product)}<br><b>Issue:</b> ${issue}<br><b>Details:</b> ${escapeHtml(details)||'(none)'}<br><br>Saved on this device. For official redressal also use the BIS Care app or CPGRAMS (pgportal.gov.in).</div>`;
+  toast('✓ Complaint registered — '+code);
+}
+function trackComplaint(){const q=document.getElementById('trackInput').value.trim().toUpperCase(),b=document.getElementById('trackResult');const c=COMPLAINTS.find(x=>x.code===q);
+  b.innerHTML=!q?'<p class="muted">Enter a tracking reference.</p>':c?`<span class="badge ok">${c.status}</span><p style="margin:0;font-size:13.5px;"><b>${escapeHtml(c.product)}</b> — ${escapeHtml(c.issue)}<br><span class="muted">Filed ${c.date}</span></p>`:'<span class="badge warn">Not found</span><p class="muted" style="margin:0;">No complaint with that code on this device.</p>';}
+function renderAdmin(){const b=document.getElementById('adminLog');b.style.display='block';
+  b.innerHTML=`<h3>Admin view</h3><p class="muted">${KB_ITEMS.length} products · ${KB_CATS.length} categories · ${LAB_DB.length} labs · ${COMPLAINTS.length} complaint(s)</p>`+(COMPLAINTS.length?COMPLAINTS.map((c,i)=>`<div class="lab-item"><div><b>${c.code}</b> — ${escapeHtml(c.product)}<div class="loc">${escapeHtml(c.issue)} · ${c.date} · ${c.status}</div></div><button class="chip" onclick="setComplaintStatus(${i})">Mark resolved</button></div>`).join(''):'<p class="muted">No complaints yet.</p>');}
+function setComplaintStatus(i){COMPLAINTS[i].status='Resolved';saveComplaints();renderAdmin();}
+(function(){
+  const p=document.getElementById('p-complaint');
+  p.insertAdjacentHTML('beforeend','<div class="card"><h3>Track a complaint</h3><div class="row" style="margin-top:8px;"><input type="text" id="trackInput" placeholder="BIS-XXXXXX" style="flex:1;min-width:180px;"><button class="primary" onclick="trackComplaint()">Track</button></div><div id="trackResult" style="margin-top:12px;"></div></div><div class="card" id="adminLog" style="display:none;"></div>');
+  document.getElementById('trackInput').addEventListener('keydown',e=>{if(e.key==='Enter')trackComplaint();});
+  const ad=[...document.querySelectorAll('.sidebar .footnote')].find(x=>x.textContent.trim()==='Admin');
+  ad.style.cursor='pointer';ad.style.textDecoration='underline';ad.title='Open admin view';ad.onclick=()=>{go('complaint');renderAdmin();};
+})();
+
+/* ---------- Document Intelligence ---------- */
+let DOC_SENTS=[];
+function splitDoc(t){return t.split(/\n+|(?<=[.;])\s+(?=[A-Z])/).map(s=>s.trim()).filter(s=>s.length>15);}
+function analyzeDoc(){
+  const text=document.getElementById('docText').value.trim(),box=document.getElementById('docResult');
+  if(!text){box.innerHTML='<p class="muted" style="font-style:italic;">Paste some document text, upload a .txt file, or try the sample excerpt.</p>';return;}
+  DOC_SENTS=splitDoc(text);
+  const clauses=DOC_SENTS.filter(s=>/^(clause\s+)?\d+(\.\d+)+[:.\s]/i.test(s));
+  const oblig=DOC_SENTS.filter(s=>/\b(shall|must|required|mandatory)\b/i.test(s));
+  const refs=[...new Set(text.match(/IS(?:\/IEC)?\s?\d{2,5}(?:\s?\(Part\s?\d+[^)]*\))?(?::\d{4})?/g)||[])];
+  const nums=[...new Set(text.match(/\d+(?:\.\d+)?\s?(?:%|mm|cm|kg|g|ml|l|°C|V|A|kV|MPa|bar|hours?|days?|years?)\b/g)||[])];
+  const annex=[...new Set(text.match(/Annex(?:ure)?\s+[A-Z]\b/g)||[])];
+  const list=a=>a.length?'<ul>'+a.slice(0,8).map(x=>`<li>${escapeHtml(x)}</li>`).join('')+'</ul>':'<p class="muted" style="margin:0;">None detected</p>';
+  box.innerHTML=`<span class="badge ok">Analysis complete</span><p class="muted" style="margin:0 0 12px;">${text.split(/\s+/).length} words · ${clauses.length} clause(s) · ${oblig.length} obligation(s) · ${refs.length} IS reference(s)</p>
+  <div class="journey-detail show"><b>Clauses</b>${list(clauses)}</div><div class="journey-detail show" style="margin-top:8px;"><b>Obligations (shall / must)</b>${list(oblig)}</div>
+  <div class="journey-detail show" style="margin-top:8px;"><b>IS references</b>${list(refs)}<b>Limits &amp; values</b>${list(nums)}<b>Annexes</b>${list(annex)}</div>
+  <div class="row" style="margin-top:12px;"><input type="text" id="docQ" placeholder="Ask about this document, e.g. what is required for marking?" style="flex:1;min-width:200px;"><button class="primary" onclick="askDoc()">Ask</button></div><div id="docAns" style="margin-top:10px;"></div>`;
+  document.getElementById('docQ').addEventListener('keydown',e=>{if(e.key==='Enter')askDoc();});
+}
+function askDoc(){
+  const q=document.getElementById('docQ').value.toLowerCase(),toks=q.split(/[^a-z0-9]+/).filter(t=>t.length>3&&!STOP.has(t)),out=document.getElementById('docAns');
+  const r=DOC_SENTS.map(s=>({s,n:toks.filter(t=>s.toLowerCase().includes(t.slice(0,Math.max(4,t.length-3)))).length})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n).slice(0,3);
+  out.innerHTML=r.length?'<div class="citation"><b>Most relevant passages:</b><br>'+r.map(x=>'• '+escapeHtml(x.s)).join('<br>')+'</div>':'<div class="citation">No passage in this document matches that question.</div>';
+}
+(function(){
+  const c=document.querySelector('#p-docintel .card'),row=c.querySelector('.row');
+  row.insertAdjacentHTML('beforeend','<label class="chip" style="cursor:pointer;">Upload .txt / .md<input type="file" id="docFile" accept=".txt,.md,.csv,.html,text/plain" style="display:none;"></label>');
+  document.getElementById('docFile').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{document.getElementById('docText').value=r.result;analyzeDoc();toast('✓ File loaded');};r.readAsText(f);});
+})();
+
+/* ---------- Assistant: KB-grounded model call + offline fallback ---------- */
+const LOCAL_T={
+ verify:['To check a genuine ISI product: find the ISI mark with a licence number (CM/L-…), then verify it on the BIS Care app or bis.gov.in. Electronics carry the CRS mark with an R-number; jewellery carries the BIS logo, purity and a 6-character HUID. If it cannot be verified, do not buy and file a complaint here.','असली ISI उत्पाद पहचानने के लिए ISI मार्क और लाइसेंस नंबर (CM/L-…) देखें और BIS Care ऐप या bis.gov.in पर जाँचें। इलेक्ट्रॉनिक्स पर R-नंबर वाला CRS मार्क और आभूषण पर BIS लोगो, शुद्धता व 6-अंकीय HUID होता है। सत्यापित न हो तो न खरीदें और शिकायत दर्ज करें।','నిజమైన ISI ఉత్పత్తిని గుర్తించడానికి ISI మార్క్ మరియు లైసెన్స్ నంబర్ (CM/L-…) చూసి BIS Care యాప్ లేదా bis.gov.in లో ధృవీకరించండి. ఎలక్ట్రానిక్స్‌పై R-నంబర్‌తో CRS మార్క్, ఆభరణాలపై BIS లోగో, స్వచ్ఛత, 6-అక్షరాల HUID ఉంటాయి. ధృవీకరణ కాకపోతే కొనవద్దు, ఫిర్యాదు చేయండి.'],
+ cert:['ISI certification (Scheme I): identify the Indian Standard, test at a BIS-recognised lab, apply on BIS Manak Online with factory and QC details, undergo BIS factory inspection, then receive the licence and use the ISI mark. Electronics use the CRS route instead (lab report + self-declaration, R-number, 2-year validity). Use Certification or Manufacturing Guide for product-specific steps.','ISI प्रमाणन (योजना I): लागू भारतीय मानक पहचानें, BIS-मान्यता प्राप्त प्रयोगशाला में परीक्षण कराएँ, BIS Manak Online पर फैक्ट्री व QC विवरण सहित आवेदन करें, फैक्ट्री निरीक्षण के बाद लाइसेंस पाकर ISI मार्क लगाएँ। इलेक्ट्रॉनिक्स के लिए CRS मार्ग (लैब रिपोर्ट + स्व-घोषणा, R-नंबर, 2 वर्ष वैधता) है।','ISI ధృవీకరణ (స్కీమ్ I): వర్తించే భారతీయ ప్రమాణాన్ని గుర్తించి, BIS గుర్తింపు పొందిన ల్యాబ్‌లో పరీక్షించి, BIS Manak Online లో ఫ్యాక్టరీ, QC వివరాలతో దరఖాస్తు చేయండి; ఫ్యాక్టరీ తనిఖీ తర్వాత లైసెన్స్ పొంది ISI మార్క్ వాడండి. ఎలక్ట్రానిక్స్‌కు CRS మార్గం (ల్యాబ్ రిపోర్ట్ + స్వీయ ప్రకటన, R-నంబర్, 2 ఏళ్ల చెల్లుబాటు).'],
+ hall:['Gold jewellery hallmarking (IS 1417) shows the BIS logo, a purity grade (e.g. 22K916) and a unique 6-character HUID. Verify the HUID on the BIS Care app; use the Hallmarking page for grades. Report missing or invalid hallmarks through Register Complaint.','सोने के आभूषण की हॉलमार्किंग (IS 1417) में BIS लोगो, शुद्धता (जैसे 22K916) और 6-अंकीय HUID होता है। BIS Care ऐप पर HUID जाँचें; हॉलमार्क न हो या गलत हो तो शिकायत दर्ज करें।','బంగారు ఆభరణాల హాల్‌మార్కింగ్ (IS 1417)లో BIS లోగో, స్వచ్ఛత (ఉదా. 22K916), 6-అక్షరాల HUID ఉంటాయి. BIS Care యాప్‌లో HUID ధృవీకరించండి; హాల్‌మార్క్ లేకపోయినా తప్పైనా ఫిర్యాదు చేయండి.'],
+ comp:['To complain about a non-compliant, counterfeit or unsafe product, use Register Complaint (you get a tracking code). You can also use the BIS Care app, CPGRAMS (pgportal.gov.in) or the National Consumer Helpline (1915 / 1800-11-4000).','अनुपालन न करने वाले, नकली या असुरक्षित उत्पाद की शिकायत के लिए “शिकायत दर्ज करें” का उपयोग करें (ट्रैकिंग कोड मिलेगा)। आप BIS Care ऐप, CPGRAMS या राष्ट्रीय उपभोक्ता हेल्पलाइन (1915 / 1800-11-4000) भी उपयोग कर सकते हैं।','నిబంధనలు పాటించని, నకిలీ లేదా అసురక్షిత ఉత్పత్తిపై ఫిర్యాదుకు “ఫిర్యాదు నమోదు” వాడండి (ట్రాకింగ్ కోడ్ వస్తుంది). BIS Care యాప్, CPGRAMS లేదా జాతీయ వినియోగదారు హెల్ప్‌లైన్ (1915 / 1800-11-4000) కూడా వాడవచ్చు.'],
+ prod:['{n}: applicable standard {c}. Status: {s}. Route: {r}. Typical tests: {t}. Please verify the latest revision and QCO status on bis.gov.in.','{n}: लागू मानक {c}। स्थिति: {s}। मार्ग: {r}। सामान्य परीक्षण: {t}। कृपया bis.gov.in पर नवीनतम संशोधन जाँचें।','{n}: వర్తించే ప్రమాణం {c}. స్థితి: {s}. మార్గం: {r}. సాధారణ పరీక్షలు: {t}. bis.gov.in లో తాజా సవరణను ధృవీకరించండి.'],
+ dflt:['I can help with product standards, ISI/CRS certification, testing labs, hallmarking/HUID and complaints. Try naming a product (e.g. “LED lamp”, “helmet”, “cement”) or ask “how do I get ISI certification?”.','मैं उत्पाद मानक, ISI/CRS प्रमाणन, परीक्षण प्रयोगशालाएँ, हॉलमार्किंग/HUID और शिकायतों में मदद कर सकता हूँ। किसी उत्पाद का नाम लिखें (जैसे “हेलमेट”, “सीमेंट”)।','నేను ఉత్పత్తి ప్రమాణాలు, ISI/CRS ధృవీకరణ, పరీక్ష ల్యాబ్‌లు, హాల్‌మార్కింగ్/HUID, ఫిర్యాదులలో సహాయం చేయగలను. ఒక ఉత్పత్తి పేరు రాయండి (ఉదా. “helmet”, “cement”).']};
+function localAnswer(q){
+  const s=q.toLowerCase(),L=activeLang==='hi'?1:activeLang==='te'?2:0;
+  if(/verify|genuine|fake|counterfeit|authentic|real isi|नकली|असली|నకిలీ/.test(s)) return LOCAL_T.verify[L];
+  if(/complain|grievance|report|शिकायत|ఫిర్యాదు/.test(s)) return LOCAL_T.comp[L];
+  if(/hallmark|huid|हॉलमार्क|హాల్‌మార్క్/.test(s)) return LOCAL_T.hall[L];
+  const r=kbSearch(s);
+  if(r.length&&r[0].score>=8){const i=r[0];return LOCAL_T.prod[L].replace('{n}',i.name).replace('{c}',i.code).replace('{s}',ST_LABEL[i.st]).replace('{r}',ROUTE[i.sch]).replace('{t}',i.tests.slice(0,4).join(', '))+(i.note?' '+i.note:'');}
+  if(/certif|licen|isi|apply|प्रमाण|ధృవీకర/.test(s)) return LOCAL_T.cert[L];
+  return LOCAL_T.dflt[L];
+}
+async function getModelReply(systemPrompt,history){
+  const last=history[history.length-1].content;
+  const ctx=kbSearch(last).slice(0,3).map(i=>`${i.name}: ${i.code} (${i.title}); status ${ST_LABEL[i.st]}; route ${ROUTE[i.sch]}; tests ${i.tests.join(', ')}. ${i.note}`).join('\n');
+  const sp=systemPrompt+(ctx?'\n\nReference knowledge (from BIS public pages — prefer this for product-to-standard mapping):\n'+ctx:'');
+  try{
+    const withTimeout=(p)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),15000))]);
+    if(window.claude&&typeof window.claude.use==='function'){const sample=await withTimeout(window.claude.use('sample'));if(sample){const res=await withTimeout(sample([{role:'user',content:sp},{role:'assistant',content:'Understood.'},...history],{modelTier:'default'}));return res.text;}}
+    return localAnswer(last);
+  }catch(e){return localAnswer(last);}
+}
+
+/* ---------- Working language switch (UI + assistant) ---------- */
+const I18N={hi:{nav:['होम','एआई सहायक','मानक खोजें','प्रमाणन','विनिर्माण मार्गदर्शिका','दस्तावेज़ विश्लेषण','परीक्षण प्रयोगशालाएँ','हॉलमार्किंग','उपभोक्ता मोड','शिकायत दर्ज करें'],h1:{assistant:'बहुभाषी सहायक',standards:'मानक खोजें',cert:'प्रमाणन मार्गदर्शिका',mfgguide:'विनिर्माण मार्गदर्शिका',labs:'परीक्षण प्रयोगशाला खोजक',hallmark:'हॉलमार्किंग और HUID',docintel:'दस्तावेज़ विश्लेषण',consumer:'उपभोक्ता मोड',complaint:'शिकायत दर्ज करें'},home:'आपको किस मदद की ज़रूरत है?',ph:'किसी उत्पाद, मानक या प्रमाणन के बारे में पूछें…'},
+te:{nav:['హోమ్','AI సహాయకుడు','ప్రమాణాలు కనుగొనండి','ధృవీకరణ','తయారీ మార్గదర్శి','డాక్యుమెంట్ విశ్లేషణ','పరీక్ష ప్రయోగశాలలు','హాల్‌మార్కింగ్','వినియోగదారు మోడ్','ఫిర్యాదు నమోదు'],h1:{assistant:'బహుభాషా సహాయకుడు',standards:'ప్రమాణాలు కనుగొనండి',cert:'ధృవీకరణ మార్గదర్శి',mfgguide:'తయారీ మార్గదర్శి',labs:'పరీక్ష ల్యాబ్ ఫైండర్',hallmark:'హాల్‌మార్కింగ్ & HUID',docintel:'డాక్యుమెంట్ విశ్లేషణ',consumer:'వినియోగదారు మోడ్',complaint:'ఫిర్యాదు నమోదు'},home:'మీకు ఏ సహాయం కావాలి?',ph:'ఉత్పత్తి, ప్రమాణం లేదా ధృవీకరణ గురించి అడగండి…'}};
+const EN0={nav:[...document.querySelectorAll('#nav button')].map(b=>b.lastChild.textContent),h1:{},home:document.querySelector('#p-home h1').textContent,ph:document.getElementById('homeSearch').placeholder};
+document.querySelectorAll('.panel').forEach(p=>{const h=p.querySelector('h1');if(h&&p.id!=='p-home')EN0.h1[p.id.slice(2)]=h.textContent;});
+function applyLang(code){
+  const T=code==='en'?EN0:I18N[code],idx=code==='en'?0:code==='hi'?1:2;
+  activeLang=code;renderLangPills();
+  document.querySelectorAll('#nav button').forEach((b,i)=>b.lastChild.textContent=T.nav[i]);
+  Object.keys(T.h1).forEach(k=>{const h=document.querySelector('#p-'+k+' h1');if(h)h.textContent=T.h1[k];});
+  document.querySelector('#p-home h1').textContent=T.home;document.getElementById('homeSearch').placeholder=T.ph;
+  document.querySelectorAll('.lang-switch').forEach(sw=>{if(sw.id!=='assistLangSwitch')sw.querySelectorAll('button').forEach((b,i)=>b.classList.toggle('active',i===idx));});
+}
+document.querySelectorAll('.lang-switch button').forEach(b=>b.addEventListener('click',()=>{const i=[...b.parentNode.children].indexOf(b);applyLang(['en','hi','te'][i]);}));
+const _setLang=setLang;setLang=function(c){_setLang(c);applyLang(c);};
+</script>
+
+<div class="modal-overlay" id="careModal" role="dialog" aria-modal="true" aria-labelledby="careTitle" onclick="if(event.target===this)closeCareModal()"><div class="modal-box"><button class="close-x" onclick="closeCareModal()" aria-label="Close">✕</button><h4 id="careTitle" style="margin:0 0 10px">BIS Customer Care</h4><div id="careModalBody"></div></div></div>
+<script>
+const BIS_REGIONS = {
+  CRO: { name:'Central Regional Office, New Delhi', phones:['011-23237401','011-2366161'], email:'cro@bis.gov.in',
+    states:['delhi','nct of delhi','uttar pradesh','rajasthan','madhya pradesh'] },
+  ERO: { name:'Eastern Regional Office, Kolkata', phones:['033-23670013','033-23670014'], email:'ero@bis.gov.in',
+    states:['west bengal','odisha','orissa','bihar','jharkhand','chhattisgarh','assam','arunachal pradesh','manipur','nagaland','tripura','meghalaya','mizoram','sikkim'] },
+  NRO: { name:'Northern Regional Office, Chandigarh', phones:['0172-2650206','0172-2650290'], email:'nro@bis.gov.in',
+    states:['punjab','haryana','himachal pradesh','uttarakhand','jammu and kashmir','jammu & kashmir','ladakh','chandigarh'] },
+  SRO: { name:'Southern Regional Office, Chennai', phones:['044-22541442','044-22541216'], email:'sro@bis.gov.in',
+    states:['tamil nadu','andhra pradesh','telangana','kerala','karnataka','goa','puducherry','pondicherry','andaman and nicobar islands','lakshadweep'] },
+  WRO: { name:'Western Regional Office, Mumbai', phones:['022-28329295','022-25702718'], email:'wro@bis.gov.in',
+    states:['maharashtra','gujarat','dadra and nagar haveli','daman and diu'] },
+};
+
+function openCareModal(){
+  document.getElementById('careModal').classList.add('show');
+  locateCare();
+}
+function closeCareModal(){
+  document.getElementById('careModal').classList.remove('show');
+}
+
+function regionForState(stateName){
+  const s = (stateName || '').toLowerCase();
+  return Object.values(BIS_REGIONS).find(r => r.states.some(st => s.includes(st) || st.includes(s))) || null;
+}
+
+function telHref(num){ return 'tel:+91' + num.replace(/[^0-9]/g,''); }
+
+function callButtons(phones, secondary){
+  return phones.map((p,i)=>`<a class="call-btn${secondary?' secondary':''}" href="${telHref(p)}">📞 Call ${p}</a>`).join('');
+}
+
+function renderCareResult(region, note){
+  const body = document.getElementById('careModalBody');
+  const regionHtml = region ? `
+    <div class="care-region">
+      <span class="suggested-tag">Suggested nearest</span>
+      <b>${region.name}</b>
+      <div style="margin-top:6px;">${callButtons(region.phones, false)}</div>
+    </div>` : '';
+  const others = Object.values(BIS_REGIONS).filter(r => !region || r.name !== region.name);
+  body.innerHTML = `
+    ${regionHtml}
+    ${note ? `<p class="muted" style="font-size:12px;margin:0 0 10px;">${note}</p>` : ''}
+    <p class="muted" style="font-size:11.5px;margin:0 0 6px;">${region ? 'Other BIS regional offices:' : 'All BIS regional offices — tap to call:'}</p>
+    <ul class="care-list">
+      ${others.map(r=>`<li><b>${r.name}</b><div style="margin-top:6px;">${callButtons(r.phones, true)}</div></li>`).join('')}
+    </ul>
+    <p class="muted" style="font-size:11px;margin-top:8px;">DEMO DATA — sample office numbers for prototype purposes; verify current numbers on bis.gov.in before calling.</p>
+  `;
+}
+
+const $=id=>document.getElementById(id);
+window.locateCare=function(){
+  const st=[...new Set(Object.values(BIS_REGIONS).flatMap(r=>r.states))].filter(s=>!/orissa|pondicherry|&|nct/.test(s)).sort();
+  $('careModalBody').innerHTML='<label class="muted" for="careState" style="font-weight:600">Select your state / UT</label><select id="careState" style="width:100%;margin:6px 0 12px"><option value="">Choose…</option>'+st.map(s=>'<option>'+s.replace(/\b\w/g,c=>c.toUpperCase())+'</option>').join('')+'</select><div id="careOut" aria-live="polite"></div><p class="muted" style="font-size:11px;margin-top:10px">Sample office numbers — confirm on bis.gov.in or the BIS Care app before calling.</p>';
+  $('careState').onchange=e=>{const v=e.target.value,r=v&&regionForState(v);$('careOut').innerHTML=r?'<div class="care-region"><span class="suggested-tag">Your regional office</span><b style="display:block">'+r.name+'</b><div style="margin-top:6px">'+callButtons(r.phones,false)+'</div><div style="font-size:12px;margin-top:6px">'+r.email+'</div></div>':'';};
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCareModal();});
+window.toggleTheme=function(){const d=document.body.classList.toggle('dark');$('themeToggle').textContent=d?'Light':'Dark';$('themeToggle').setAttribute('aria-pressed',d);};
+const ROLES={mfr:{go:['mfgguide','standards','cert','labs','docintel'],hint:'Start with your product’s compliance roadmap.',cta:['Open Manufacturing Guide','mfgguide']},con:{go:['consumer','hallmark','complaint','standards'],hint:'Check a licence number or HUID before you buy.',cta:['Verify a product','consumer']}};
+window.setRole=function(r){const R=ROLES[r];document.querySelectorAll('.role-btn').forEach(b=>b.classList.toggle('active',b.dataset.r===r));
+  document.querySelectorAll('.quick-card').forEach(c=>{const m=(c.getAttribute('onclick')||'').match(/go\('(\w+)'\)/);c.classList.toggle('dim',!!m&&!R.go.includes(m[1]));});
+  $('roleHint').innerHTML=R.hint+' <button class="primary" onclick="go(\''+R.cta[1]+'\')">'+R.cta[0]+' →</button>';};
+document.querySelectorAll('input[type=text],textarea').forEach(e=>{if(!e.getAttribute('aria-label'))e.setAttribute('aria-label',e.placeholder||e.id)});
+['stdResult','labResults','huidResult','consumerResult','compResult','docResult','chatThread','mfgRoadmap'].forEach(i=>{const e=$(i);if(e)e.setAttribute('aria-live','polite')});
+document.querySelectorAll('.quick-card').forEach(c=>{c.setAttribute('role','button');c.tabIndex=0;c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();c.click();}});});
+const _go=go;go=function(p){_go(p);document.querySelectorAll('#nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.p===p?'page':'false'));window.scrollTo(0,0);};
+(function(){const p=$('p-complaint');p.insertAdjacentHTML('beforeend','<div class="card"><h3>Know your consumer rights</h3><ul class="steps"><li><div class="step-body"><b>Keep evidence</b><p>Bill, warranty card, photos of the defect or mark, batch number.</p></div></li><li><div class="step-body"><b>Time limit</b><p>Consumer complaints are generally filed within 2 years of the cause of action.</p></div></li><li><div class="step-body"><b>Where to file</b><p>District Commission (claims up to ₹50 lakh), State (₹50 lakh–₹2 crore), National (above ₹2 crore) — online via e-Daakhil (edaakhil.nic.in).</p></div></li><li><div class="step-body"><b>Helpline</b><p>National Consumer Helpline 1915 / 1800-11-4000.</p></div></li></ul><button class="primary" style="margin-top:10px" onclick="openCareModal()">📍 Find BIS customer care</button></div>');})();
+</script>
+</body>
+</html>
